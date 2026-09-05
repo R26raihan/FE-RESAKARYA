@@ -73,6 +73,14 @@ const router = createRouter({
       component: RegulationView,
       meta: { requiresAuth: true },
     },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: () => {
+        const authStore = useAuthStore();
+        if (!authStore.isAuthenticated) return '/login';
+        return authStore.role === 'admin' ? '/' : '/portal-bu';
+      },
+    },
   ],
 });
 
