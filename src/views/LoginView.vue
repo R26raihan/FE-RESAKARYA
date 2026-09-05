@@ -96,7 +96,7 @@ async function handleLogin() {
 
           <div class="pt-4 space-y-4">
             <h2 class="text-xl font-bold leading-tight">
-              Sistem Triase Risiko & Otomasi Kepatuhan e-Dabu
+              Sistem Triase Risiko & Otomasi Kepatuhan e-Dabu (Elektronik Data Badan Usaha)
             </h2>
             <p class="text-xs text-teal-100/90 leading-relaxed">
               Platform kecerdasan buatan terintegrasi untuk pengawasan kepatuhan pelaporan upah dan jumlah pekerja Badan Usaha BPJS Kesehatan RI.
@@ -115,14 +115,14 @@ async function handleLogin() {
             </div>
             <div class="flex items-center gap-2.5 text-xs text-teal-100">
               <CheckCircle2 class="w-4 h-4 text-teal-300 shrink-0" />
-              <span>UU PDP No. 27/2022 PII Masking Safe</span>
+              <span>UU PDP (UU Perlindungan Data Pribadi No. 27/2022) & PII Masked</span>
             </div>
           </div>
         </div>
 
         <!-- Footer Tag -->
         <div class="pt-8 border-t border-white/10 text-[10px] text-teal-200/80 flex items-center justify-between">
-          <span>Kedeputian Wasrik BPJS</span>
+          <span>Kedeputian Wasrik (Pengawasan & Pemeriksaan) BPJS</span>
           <span class="font-mono">MySQL Live Auth</span>
         </div>
       </div>
@@ -135,7 +135,7 @@ async function handleLogin() {
               Autentikasi Pengguna
             </span>
             <h2 class="text-xl font-bold text-gray-800 mt-2">Selamat Datang di REKSAKARYA</h2>
-            <p class="text-xs text-gray-500 mt-1">Pilih role akses Anda untuk masuk ke sistem.</p>
+            <p class="text-xs text-gray-500 mt-1">Pilih peran akses (Role) Anda untuk masuk ke sistem.</p>
           </div>
 
           <!-- Role Selector Cards -->
@@ -157,8 +157,8 @@ async function handleLogin() {
                 </div>
                 <span v-if="selectedRole === 'admin'" class="w-2 h-2 rounded-full bg-teal-500"></span>
               </div>
-              <h3 class="text-xs font-bold text-gray-800">Petugas Wasrik</h3>
-              <p class="text-[10px] text-gray-500 mt-0.5">Admin & Audit BPJS</p>
+              <h3 class="text-xs font-bold text-gray-800">Petugas Wasrik (Pengawasan & Pemeriksaan)</h3>
+              <p class="text-[10px] text-gray-500 mt-0.5">Akses Auditor & Triase Risiko BPJS</p>
             </button>
 
             <!-- Role User Badan Usaha -->
@@ -178,8 +178,8 @@ async function handleLogin() {
                 </div>
                 <span v-if="selectedRole === 'user'" class="w-2 h-2 rounded-full bg-teal-500"></span>
               </div>
-              <h3 class="text-xs font-bold text-gray-800">Badan Usaha</h3>
-              <p class="text-[10px] text-gray-500 mt-0.5">HR & Input Payroll</p>
+              <h3 class="text-xs font-bold text-gray-800">Badan Usaha (BU / Perusahaan)</h3>
+              <p class="text-[10px] text-gray-500 mt-0.5">PIC HRD & Input Pelaporan e-Dabu</p>
             </button>
           </div>
 

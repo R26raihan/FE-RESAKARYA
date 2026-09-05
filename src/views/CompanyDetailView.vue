@@ -95,31 +95,31 @@ function formatRupiah(val?: number) {
       <div class="p-4 rounded-2xl bg-white border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)]">
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pekerja Terdaftar e-Dabu</p>
         <p class="text-lg font-bold text-gray-800 mt-1">{{ store.selectedCompany.total_workers_edabu }} Orang</p>
-        <p class="text-[11px] text-gray-400 mt-0.5">Total kepesertaan aktif</p>
+        <p class="text-[11px] text-gray-400 mt-0.5">Total kepesertaan aktif di BPJS</p>
       </div>
 
       <div class="p-4 rounded-2xl bg-white border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)]">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Defisit Headcount (vs WLTK)</p>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Defisit Pekerja (vs WLTK Kemnaker)</p>
         <p class="text-lg font-bold mt-1" :class="store.selectedCompany.headcount_deficit > 0 ? 'text-amber-600' : 'text-gray-700'">
           {{ store.selectedCompany.headcount_deficit > 0 ? `+${store.selectedCompany.headcount_deficit} Orang` : '0 (Lengkap)' }}
         </p>
-        <p class="text-[11px] text-gray-400 mt-0.5">Indikasi under-coverage peserta</p>
+        <p class="text-[11px] text-gray-400 mt-0.5">Indikasi under-coverage (pekerja belum terdaftar)</p>
       </div>
 
       <div class="p-4 rounded-2xl bg-white border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)]">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rasio Flat UMP</p>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rasio Flat UMP (Pas Batas UMP)</p>
         <p class="text-lg font-bold mt-1" :class="store.selectedCompany.pct_flat_ump >= 0.8 ? 'text-rose-600' : 'text-gray-700'">
           {{ (store.selectedCompany.pct_flat_ump * 100).toFixed(1) }}%
         </p>
-        <p class="text-[11px] text-gray-400 mt-0.5">Karyawan bergaji batas bawah UMP</p>
+        <p class="text-[11px] text-gray-400 mt-0.5">Karyawan bergaji tepat batas bawah UMP</p>
       </div>
 
       <div class="p-4 rounded-2xl bg-white border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)]">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Shannon Entropy</p>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Shannon Entropy (Keragaman Upah)</p>
         <p class="text-lg font-bold mt-1" :class="store.selectedCompany.shannon_entropy < 0.3 ? 'text-rose-600' : 'text-gray-700'">
           {{ store.selectedCompany.shannon_entropy.toFixed(3) }}
         </p>
-        <p class="text-[11px] text-gray-400 mt-0.5">{{ store.selectedCompany.shannon_entropy < 0.3 ? 'Sangat Seragam (Anomali)' : 'Keragaman Normal' }}</p>
+        <p class="text-[11px] text-gray-400 mt-0.5">{{ store.selectedCompany.shannon_entropy < 0.3 ? 'Sangat Seragam (Anomali Fraud)' : 'Keragaman Upah Wajar' }}</p>
       </div>
     </div>
 
@@ -135,7 +135,7 @@ function formatRupiah(val?: number) {
             <Users class="w-4 h-4 text-teal-500" />
             Data Mikro Tenaga Kerja Terdaftar (e-Dabu)
           </h3>
-          <p class="text-xs text-gray-400 mt-0.5">Data disamarkan (PII Masked) mematuhi UU PDP No. 27/2022.</p>
+          <p class="text-xs text-gray-400 mt-0.5">Data disamarkan (PII - Personally Identifiable Information Masked) mematuhi UU PDP (Perlindungan Data Pribadi No. 27/2022).</p>
         </div>
       </div>
 

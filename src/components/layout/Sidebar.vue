@@ -21,20 +21,20 @@ const authStore = useAuthStore();
 const currentPath = computed(() => route.path);
 
 const adminMainNavItems = [
-  { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { name: 'Antrean Triase', path: '/triage', icon: ShieldAlert },
+  { name: 'Dashboard Triase', path: '/', icon: LayoutDashboard },
+  { name: 'Antrean Triase Wasrik', path: '/triage', icon: ShieldAlert },
   { name: 'Daftar Badan Usaha', path: '/companies', icon: Building2 },
-  { name: 'Benchmark Regional', path: '/benchmark', icon: MapPin },
+  { name: 'Benchmark Regional (UMP)', path: '/benchmark', icon: MapPin },
 ];
 
 const adminAuditNavItems = [
-  { name: 'Auto-BAP Generator', path: '/bap-generator', icon: FileText },
-  { name: 'Panduan & Regulasi', path: '/regulation', icon: HelpCircle },
+  { name: 'Auto-BAP (Berita Acara)', path: '/bap-generator', icon: FileText },
+  { name: 'Panduan & SOP Wasrik', path: '/regulation', icon: HelpCircle },
 ];
 
 const userNavItems = [
-  { name: 'Portal Input Payroll', path: '/portal-bu', icon: UploadCloud },
-  { name: 'Panduan & Regulasi', path: '/regulation', icon: HelpCircle },
+  { name: 'Portal e-Dabu (Input Payroll)', path: '/portal-bu', icon: UploadCloud },
+  { name: 'Panduan & Regulasi UU PDP', path: '/regulation', icon: HelpCircle },
 ];
 
 function handleLogout() {
@@ -61,7 +61,7 @@ function handleSwitchRole() {
             REKSAKARYA AI
           </h1>
           <p class="text-[10px] text-teal-600 font-semibold">
-            {{ authStore.isAdmin ? 'Wasrik BPJS Kesehatan' : 'Portal Badan Usaha' }}
+            {{ authStore.isAdmin ? 'Wasrik (Pengawasan) BPJS' : 'Portal Badan Usaha' }}
           </p>
         </div>
       </div>
@@ -94,7 +94,7 @@ function handleSwitchRole() {
 
         <!-- Section Header -->
         <div class="pt-4 px-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-          Otomasi Wasrik
+          Otomasi Wasrik (Pengawasan)
         </div>
 
         <RouterLink
@@ -125,7 +125,7 @@ function handleSwitchRole() {
       <!-- Navigation for User Role -->
       <div v-else class="space-y-1">
         <div class="px-3 pb-1 text-[10px] font-bold text-teal-600 uppercase tracking-wider">
-          Menu Pelaporan e-Dabu
+          Menu Pelaporan e-Dabu (Badan Usaha)
         </div>
 
         <RouterLink

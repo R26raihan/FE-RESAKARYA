@@ -49,7 +49,7 @@ function calculateEstimatedLeakage(company: any) {
       <div>
         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-bold mb-1.5 border border-rose-200">
           <ShieldAlert class="w-3.5 h-3.5" />
-          <span>Antrean Prioritas Audit Wasrik BPJS</span>
+          <span>Antrean Prioritas Audit Wasrik (Pengawasan & Pemeriksaan BPJS)</span>
         </div>
         <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
           Antrean Triase Risiko Kepatuhan (Risk Triage Queue)
@@ -84,9 +84,9 @@ function calculateEstimatedLeakage(company: any) {
 
       <div class="p-4 rounded-2xl bg-white border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)] flex items-center justify-between">
         <div>
-          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Modus Flat UMP Ekstrem</p>
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Modus Flat UMP (Gaji Pas UMP)</p>
           <h3 class="text-lg font-bold text-gray-800 mt-0.5">245 Entitas (81%)</h3>
-          <p class="text-[10px] text-rose-500 font-medium mt-0.5">Shannon Entropy &lt; 0.3</p>
+          <p class="text-[10px] text-rose-500 font-medium mt-0.5">Shannon Entropy &lt; 0.3 (Gaji Seragam)</p>
         </div>
         <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
           <AlertTriangle class="w-5 h-5" />
@@ -108,7 +108,7 @@ function calculateEstimatedLeakage(company: any) {
         <div>
           <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">SOP Audit Lapangan</p>
           <h3 class="text-lg font-bold text-gray-800 mt-0.5">Maks. 7 Hari Kerja</h3>
-          <p class="text-[10px] text-gray-400 font-medium mt-0.5">Klarifikasi & BAP</p>
+          <p class="text-[10px] text-gray-400 font-medium mt-0.5">Klarifikasi & BAP (Berita Acara)</p>
         </div>
         <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
           <Clock class="w-5 h-5" />
@@ -136,12 +136,28 @@ function calculateEstimatedLeakage(company: any) {
         @change="handleFilterChange"
         class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
       >
-        <option value="">Semua Sektor KBLI</option>
+        <option value="">Semua Sektor KBLI (Klasifikasi Baku Lapangan Usaha)</option>
         <option value="Manufaktur">Manufaktur</option>
-        <option value="Jasa Keuangan">Jasa Keuangan</option>
-        <option value="Retail">Retail</option>
-        <option value="Perkebunan">Perkebunan</option>
-        <option value="Konstruksi">Konstruksi</option>
+        <option value="Jasa & Konsultan">Jasa & Konsultan</option>
+        <option value="Teknologi & Informasi">Teknologi & Informasi</option>
+        <option value="Kesehatan">Kesehatan</option>
+        <option value="Konstruksi & Properti">Konstruksi & Properti</option>
+      </select>
+
+      <!-- Provinsi Filter -->
+      <select
+        v-model="store.filterProvinsi"
+        @change="handleFilterChange"
+        class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
+      >
+        <option value="">Semua Provinsi</option>
+        <option value="DKI Jakarta">DKI Jakarta</option>
+        <option value="Jawa Barat">Jawa Barat</option>
+        <option value="Jawa Timur">Jawa Timur</option>
+        <option value="Banten">Banten</option>
+        <option value="Jawa Tengah">Jawa Tengah</option>
+        <option value="Sumatera Utara">Sumatera Utara</option>
+        <option value="Bali">Bali</option>
       </select>
 
       <!-- Skala Filter -->
@@ -156,16 +172,7 @@ function calculateEstimatedLeakage(company: any) {
         <option value="Besar">Besar</option>
       </select>
 
-      <!-- Urgensi Filter -->
-      <select
-        class="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:ring-2 focus:ring-teal-400 focus:outline-none"
-      >
-        <option value="">Semua Tingkat Urgensi</option>
-        <option value="urgent">🔴 Prioritas Sangat Tinggi (Flat UMP &gt; 80%)</option>
-        <option value="moderate">🟡 Prioritas Sedang</option>
-      </select>
-
-      <!-- Button Reset -->
+      <!-- Reset Filter Button -->
       <button
         @click="
           store.filterProvinsi = '';
@@ -175,7 +182,7 @@ function calculateEstimatedLeakage(company: any) {
           store.searchQuery = '';
           handleFilterChange();
         "
-        class="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors"
+        class="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors cursor-pointer"
       >
         Reset Filter
       </button>
@@ -187,14 +194,14 @@ function calculateEstimatedLeakage(company: any) {
         <table class="w-full text-left text-xs">
           <thead class="text-[10px] uppercase font-bold text-gray-400 border-b border-gray-100 bg-gray-50/50">
             <tr>
-              <th class="py-3 px-4">BADAN USAHA</th>
-              <th class="py-3 px-4">PROVINSI & SEKTOR</th>
-              <th class="py-3 px-4">RASIO FLAT UMP</th>
-              <th class="py-3 px-4">DEFISIT PEKERJA</th>
-              <th class="py-3 px-4">SHANNON ENTROPY</th>
+              <th class="py-3 px-4">BADAN USAHA (BU)</th>
+              <th class="py-3 px-4">PROVINSI & SEKTOR (KBLI)</th>
+              <th class="py-3 px-4">RASIO FLAT UMP (% GAJI PAS UMP)</th>
+              <th class="py-3 px-4">DEFISIT PEKERJA (vs WLTK KEMNAKER)</th>
+              <th class="py-3 px-4">SHANNON ENTROPY (KERAGAMAN UPAH)</th>
               <th class="py-3 px-4">ESTIMASI KEBOCORAN (5%)</th>
               <th class="py-3 px-4">URGENSI AUDIT</th>
-              <th class="py-3 px-4 text-center">AKSI WASRIK</th>
+              <th class="py-3 px-4 text-center">AKSI WASRIK (AUDIT)</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">

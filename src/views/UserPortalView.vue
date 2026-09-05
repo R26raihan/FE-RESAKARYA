@@ -411,13 +411,13 @@ function printReceipt() {
         <div>
           <div class="flex items-center gap-2 text-xs text-teal-200 font-semibold mb-1">
             <Building2 class="w-4 h-4" />
-            <span>Portal Mandiri Badan Usaha • Pelaporan e-Dabu JKN</span>
+            <span>Portal Mandiri Badan Usaha • Pelaporan e-Dabu (Elektronik Data Badan Usaha) JKN</span>
           </div>
           <h1 class="text-xl md:text-2xl font-extrabold tracking-tight">
             Input & Rekonsiliasi Upah Tenaga Kerja
           </h1>
           <p class="text-xs text-teal-100/90 mt-1 max-w-2xl leading-relaxed">
-            Laporkan data gaji tenaga kerja Anda sesuai ketentuan UU BPJS Kesehatan & Perpres No. 82/2018. Data terlindungi kepatuhan UU PDP No. 27/2022 dengan enkripsi & masking otomatis.
+            Laporkan data gaji tenaga kerja Anda sesuai ketentuan UU BPJS Kesehatan & Perpres No. 82/2018. Data terlindungi kepatuhan UU PDP (Undang-Undang Perlindungan Data Pribadi No. 27/2022) dengan enkripsi & masking otomatis.
           </p>
         </div>
 
@@ -427,7 +427,7 @@ function printReceipt() {
             🏢
           </div>
           <div>
-            <p class="text-[10px] text-teal-200 font-medium">Badan Usaha Terdaftar</p>
+            <p class="text-[10px] text-teal-200 font-medium">Badan Usaha (BU) Terdaftar</p>
             <p class="text-xs font-bold">{{ formProfile.company_name }}</p>
           </div>
         </div>
@@ -442,7 +442,7 @@ function printReceipt() {
           ]"
         >
           <span class="w-5 h-5 rounded-full bg-teal-500 text-white text-[10px] flex items-center justify-center font-bold">1</span>
-          <span class="hidden sm:inline">Profil BU</span>
+          <span class="hidden sm:inline">1. Profil BU (Badan Usaha)</span>
         </div>
 
         <div
@@ -452,7 +452,7 @@ function printReceipt() {
           ]"
         >
           <span class="w-5 h-5 rounded-full bg-teal-500 text-white text-[10px] flex items-center justify-center font-bold">2</span>
-          <span class="hidden sm:inline">Unduh Template</span>
+          <span class="hidden sm:inline">2. Unduh Template</span>
         </div>
 
         <div
@@ -462,7 +462,7 @@ function printReceipt() {
           ]"
         >
           <span class="w-5 h-5 rounded-full bg-teal-500 text-white text-[10px] flex items-center justify-center font-bold">3</span>
-          <span class="hidden sm:inline">Upload & Validasi</span>
+          <span class="hidden sm:inline">3. Upload & Validasi</span>
         </div>
 
         <div
@@ -472,7 +472,7 @@ function printReceipt() {
           ]"
         >
           <span class="w-5 h-5 rounded-full bg-teal-500 text-white text-[10px] flex items-center justify-center font-bold">4</span>
-          <span class="hidden sm:inline">Tanda Terima</span>
+          <span class="hidden sm:inline">4. Tanda Terima (BPE)</span>
         </div>
       </div>
     </div>
@@ -481,8 +481,8 @@ function printReceipt() {
     <div v-if="currentStep === 1" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6 print:hidden">
       <div class="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
-          <h2 class="text-base font-bold text-gray-800">Langkah 1: Konfirmasi Profil Badan Usaha</h2>
-          <p class="text-xs text-gray-500">Pastikan wilayah operasional dan data headcount WLTK terisi dengan akurat.</p>
+          <h2 class="text-base font-bold text-gray-800">Langkah 1: Konfirmasi Profil Badan Usaha (BU)</h2>
+          <p class="text-xs text-gray-500">Pastikan wilayah operasional dan data headcount WLTK (Wajib Lapor Ketenagakerjaan Kemnaker) terisi dengan akurat.</p>
         </div>
         <button
           @click="loadDemoSample"
@@ -517,7 +517,7 @@ function printReceipt() {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1.5">Sektor Industri (KBLI)</label>
+          <label class="block text-xs font-bold text-gray-700 mb-1.5">Sektor Industri (KBLI - Klasifikasi Baku Lapangan Usaha Indonesia)</label>
           <select
             v-model="formProfile.sektor_kbli"
             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -541,14 +541,14 @@ function printReceipt() {
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1.5">Jumlah Pekerja Riil Lapangan (WLTK)</label>
+          <label class="block text-xs font-bold text-gray-700 mb-1.5">Jumlah Pekerja Riil Lapangan (WLTK - Wajib Lapor Ketenagakerjaan Kemnaker)</label>
           <input
             v-model.number="formProfile.wltk_headcount"
             type="number"
             min="1"
             class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
-          <p class="text-[10px] text-gray-400 mt-1">Sesuai laporan Wajib Lapor Ketenagakerjaan di Perusahaan (WLTK Kemnaker).</p>
+          <p class="text-[10px] text-gray-400 mt-1">Sesuai laporan resmi Wajib Lapor Ketenagakerjaan di Perusahaan (WLTK) Kementerian Ketenagakerjaan RI.</p>
         </div>
 
         <div class="bg-teal-50/70 border border-teal-100 rounded-2xl p-4 flex items-center gap-3">
@@ -556,7 +556,7 @@ function printReceipt() {
             <DollarSign class="w-5 h-5" />
           </div>
           <div>
-            <p class="text-[10px] text-teal-700 font-bold uppercase tracking-wider">Acuan UMP 2026 Wilayah Terpilih</p>
+            <p class="text-[10px] text-teal-700 font-bold uppercase tracking-wider">Acuan UMP 2026 (Upah Minimum Provinsi)</p>
             <p class="text-sm font-extrabold text-teal-900">
               Rp {{ currentUmp.toLocaleString('id-ID') }}
             </p>
@@ -618,7 +618,7 @@ function printReceipt() {
             </div>
             <h3 class="text-sm font-bold text-slate-900">Template CSV Delimited (.csv)</h3>
             <p class="text-xs text-slate-600 leading-relaxed">
-              Format teks ringan untuk ekspor otomatis dari sistem Payroll / HRIS internal perusahaan (SAP, Talenta, Mekari, Workday).
+              Format teks ringan untuk ekspor otomatis dari sistem Payroll / HRIS (Human Resource Information System) internal perusahaan (SAP, Talenta, Mekari, Workday).
             </p>
           </div>
 
@@ -651,7 +651,7 @@ function printReceipt() {
             <tbody class="divide-y divide-gray-200/60 text-gray-700">
               <tr>
                 <td class="py-2 px-3 font-mono font-bold text-teal-700">NIK</td>
-                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib (16 Digit)</td>
+                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib (16 Digit NIK Kependudukan)</td>
                 <td class="py-2 px-3">Teks / Angka</td>
                 <td class="py-2 px-3 font-mono">3171012345670001</td>
               </tr>
@@ -669,14 +669,14 @@ function printReceipt() {
               </tr>
               <tr>
                 <td class="py-2 px-3 font-mono font-bold text-teal-700">Gaji_Pokok_Lapor</td>
-                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib (>= UMP)</td>
-                <td class="py-2 px-3">Angka / Mata Uang (Rp)</td>
+                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib (>= Batas UMP Regional)</td>
+                <td class="py-2 px-3">Angka / Format Rp</td>
                 <td class="py-2 px-3 font-mono">Rp15,000,000 / 15000000</td>
               </tr>
               <tr>
                 <td class="py-2 px-3 font-mono font-bold text-teal-700">Tunjangan_Tetap</td>
                 <td class="py-2 px-3 text-gray-500">Opsional</td>
-                <td class="py-2 px-3">Angka / Mata Uang (Rp)</td>
+                <td class="py-2 px-3">Angka / Format Rp</td>
                 <td class="py-2 px-3 font-mono">Rp2,000,000 / 2000000</td>
               </tr>
             </tbody>
@@ -702,7 +702,7 @@ function printReceipt() {
     <div v-if="currentStep === 3" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6 print:hidden">
       <div class="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
-          <h2 class="text-base font-bold text-gray-800">Langkah 3: Unggah & Validasi Pre-Flight</h2>
+          <h2 class="text-base font-bold text-gray-800">Langkah 3: Unggah & Validasi Pre-Flight (Skema Data)</h2>
           <p class="text-xs text-gray-500">Unggah file Excel/CSV yang sudah diisi untuk pemeriksaan skema otomatis.</p>
         </div>
         <button @click="currentStep = 2" class="text-xs font-semibold text-gray-500 hover:text-gray-800 cursor-pointer">
@@ -749,27 +749,27 @@ function printReceipt() {
       <div v-if="parsedWorkers.length > 0" class="space-y-4">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
-            <p class="text-[10px] text-gray-500 font-bold uppercase">Total Pekerja Lapor</p>
+            <p class="text-[10px] text-gray-500 font-bold uppercase">Total Pekerja Lapor e-Dabu</p>
             <p class="text-lg font-extrabold text-gray-900 mt-1">{{ stats.totalWorkers }} Jiwa</p>
-            <p class="text-[10px] text-gray-400">Dari {{ formProfile.wltk_headcount }} WLTK</p>
+            <p class="text-[10px] text-gray-400">Dari {{ formProfile.wltk_headcount }} WLTK (Data Riil Kemnaker)</p>
           </div>
 
           <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
             <p class="text-[10px] text-gray-500 font-bold uppercase">Rata-rata Gaji Lapor</p>
             <p class="text-lg font-extrabold text-teal-600 mt-1">Rp {{ Math.round(stats.meanSalary).toLocaleString('id-ID') }}</p>
-            <p class="text-[10px] text-gray-400">Termasuk tunjangan</p>
+            <p class="text-[10px] text-gray-400">Gaji Pokok + Tunjangan</p>
           </div>
 
           <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
-            <p class="text-[10px] text-amber-800 font-bold uppercase">Gaji Flat UMP</p>
+            <p class="text-[10px] text-amber-800 font-bold uppercase">Gaji Flat UMP (Pas Batas Bawah)</p>
             <p class="text-lg font-extrabold text-amber-900 mt-1">{{ stats.flatUmpCount }} Orang</p>
-            <p class="text-[10px] text-amber-700">{{ Math.round((stats.flatUmpCount / stats.totalWorkers) * 100) }}% dari total</p>
+            <p class="text-[10px] text-amber-700">{{ Math.round((stats.flatUmpCount / stats.totalWorkers) * 100) }}% dari total pekerja</p>
           </div>
 
           <div class="p-4 rounded-2xl bg-rose-50/70 border border-rose-200">
-            <p class="text-[10px] text-rose-800 font-bold uppercase">Defisit Headcount</p>
+            <p class="text-[10px] text-rose-800 font-bold uppercase">Defisit Pekerja (vs WLTK Kemnaker)</p>
             <p class="text-lg font-extrabold text-rose-900 mt-1">{{ stats.headcountDeficit }} Jiwa</p>
-            <p class="text-[10px] text-rose-700">WLTK vs Lapor</p>
+            <p class="text-[10px] text-rose-700">WLTK Riil vs Lapor e-Dabu</p>
           </div>
         </div>
 
@@ -778,7 +778,7 @@ function printReceipt() {
           <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-xs font-bold text-gray-800 flex items-center gap-2">
               <ShieldCheck class="w-4 h-4 text-teal-600" />
-              <span>Preview Data Payroll (10 Baris Pertama) • PII Safe Masking Aktif</span>
+              <span>Preview Data Payroll (10 Baris Pertama) • PII (Data Pribadi) Safe Masking Aktif</span>
             </h3>
             <span class="text-[11px] text-gray-500">{{ parsedWorkers.length }} baris data siap sinkronisasi</span>
           </div>
@@ -788,13 +788,13 @@ function printReceipt() {
               <thead class="bg-gray-100/80 sticky top-0 text-[10px] uppercase font-bold text-gray-600">
                 <tr>
                   <th class="py-2 px-3">No</th>
-                  <th class="py-2 px-3">NIK (Masked)</th>
+                  <th class="py-2 px-3">NIK (Nomor Induk Kependudukan - Masked)</th>
                   <th class="py-2 px-3">Nama Pekerja</th>
                   <th class="py-2 px-3">Jabatan</th>
                   <th class="py-2 px-3">Gaji Pokok</th>
                   <th class="py-2 px-3">Tunjangan</th>
                   <th class="py-2 px-3">Total Gaji</th>
-                  <th class="py-2 px-3">Status UMP</th>
+                  <th class="py-2 px-3">Status UMP (Upah Minimum)</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -811,7 +811,7 @@ function printReceipt() {
                       v-if="w.status_ump === 'FLAT_UMP'"
                       class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"
                     >
-                      Flat UMP
+                      Flat UMP (Sama Pas UMP)
                     </span>
                     <span
                       v-else-if="w.status_ump === 'BELOW_UMP'"
@@ -836,7 +836,7 @@ function printReceipt() {
         <div class="flex items-center justify-between pt-4 border-t border-gray-100">
           <p class="text-xs text-gray-500 flex items-center gap-1.5">
             <ShieldCheck class="w-4 h-4 text-teal-600" />
-            <span>Mematuhi UU PDP No. 27/2022 (Data tersimpan dengan enkripsi & masking)</span>
+            <span>Mematuhi UU PDP (Undang-Undang Perlindungan Data Pribadi No. 27/2022)</span>
           </p>
 
           <button
@@ -1060,7 +1060,7 @@ function printReceipt() {
               <th class="py-2.5 px-3">Waktu Pelaporan</th>
               <th class="py-2.5 px-3">Jumlah Pekerja</th>
               <th class="py-2.5 px-3">Rata-rata Gaji</th>
-              <th class="py-2.5 px-3">Defisit WLTK</th>
+              <th class="py-2.5 px-3">Defisit Pekerja (vs WLTK Kemnaker)</th>
               <th class="py-2.5 px-3">Status</th>
               <th class="py-2.5 px-3 text-center">Aksi Dokumen</th>
             </tr>

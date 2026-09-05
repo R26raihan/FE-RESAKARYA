@@ -105,7 +105,7 @@ const companyIcons = [
         :value="store.dashboardKpis ? store.dashboardKpis.total_anomalies.toLocaleString('id-ID') : '—'"
         :trend="store.dashboardKpis ? store.dashboardKpis.anomaly_rate_pct.toFixed(1) + '% populasi' : 'API belum tersedia'"
         :trend-positive="false"
-        subtitle="Prioritas Triase Wasrik"
+        subtitle="Prioritas Triase Wasrik (Pengawasan & Pemeriksaan)"
       >
         <template #icon><FileText class="w-5 h-5 text-white" /></template>
       </StatCard>
@@ -115,7 +115,7 @@ const companyIcons = [
         :value="store.dashboardKpis ? store.dashboardKpis.total_headcount_deficit.toLocaleString('id-ID') : '—'"
         trend="+8%"
         :trend-positive="false"
-        subtitle="Peserta Belum Didaftarkan"
+        subtitle="Peserta Belum Didaftarkan e-Dabu"
       >
         <template #icon><ShoppingCart class="w-5 h-5 text-white" /></template>
       </StatCard>
@@ -127,10 +127,10 @@ const companyIcons = [
       <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)] flex flex-col justify-between relative overflow-hidden">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
           <div class="md:col-span-7">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Sistem Pengawasan e-Dabu</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Sistem Pengawasan e-Dabu (Elektronik Data Badan Usaha)</p>
             <h2 class="text-xl font-black text-gray-800 tracking-tight mb-2">REKSAKARYA AI Dashboard</h2>
             <p class="text-xs text-gray-500 leading-relaxed mb-4">
-              Platform triase kepatuhan iuran JKN berbasis <strong>Dual-Model Machine Learning (Isolation Forest & Deep Autoencoder)</strong> terintegrasi benchmark upah 38 provinsi di Indonesia untuk mendeteksi modus <em>Flat UMP</em> dan <em>Under-coverage</em> secara akuntabel.
+              Platform triase kepatuhan iuran JKN (Jaminan Kesehatan Nasional) berbasis <strong>Dual-Model Machine Learning (Isolation Forest & Deep Autoencoder)</strong> terintegrasi benchmark upah 38 provinsi di Indonesia untuk mendeteksi modus <em>Flat UMP (Penyeragaman Upah Pas Minimum)</em> dan <em>Under-coverage (Pendaftaran Sebagian Karyawan vs WLTK Kemnaker)</em> secara akuntabel.
             </p>
             <RouterLink
               to="/triage"
@@ -482,7 +482,7 @@ const companyIcons = [
       <!-- Right Orders Overview: Audit Activity Log Timeline (4 Cols) -->
       <div class="lg:col-span-4 bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)] flex flex-col justify-between">
         <div>
-          <h3 class="text-sm font-bold text-gray-800">Log Aktivitas Wasrik</h3>
+          <h3 class="text-sm font-bold text-gray-800">Log Aktivitas Wasrik (Pengawasan & Pemeriksaan)</h3>
           <p class="text-xs text-teal-600 font-bold mt-0.5">
             +30% <span class="text-gray-400 font-normal">verifikasi selesai bulan ini</span>
           </p>
@@ -491,12 +491,12 @@ const companyIcons = [
           <div class="space-y-4 mt-5 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
             <div
               v-for="log in (store.auditActivityLog.length ? store.auditActivityLog : [
-                { id:1, color:'teal', icon_type:'bell', title:'Anomali Flat UMP BU-0013 terdeteksi', timestamp_label:'22 DEC 7:20 PM' },
-                { id:2, color:'rose', icon_type:'file_text', title:'Draf BAP Klarifikasi #BAP-088 terbit', timestamp_label:'21 DEC 11:21 PM' },
+                { id:1, color:'teal', icon_type:'bell', title:'Anomali Flat UMP (Pas Batas UMP) BU-0013 terdeteksi', timestamp_label:'22 DEC 7:20 PM' },
+                { id:2, color:'rose', icon_type:'file_text', title:'Draf BAP (Berita Acara Pemeriksaan) #BAP-088 terbit', timestamp_label:'21 DEC 11:21 PM' },
                 { id:3, color:'blue', icon_type:'shopping_cart', title:'Potensi Iuran Tertagih Rp 184 Juta', timestamp_label:'21 DEC 9:28 PM' },
-                { id:4, color:'amber', icon_type:'credit_card', title:'Klarifikasi WLTK Defisit 35 Pekerja', timestamp_label:'20 DEC 3:52 PM' },
-                { id:5, color:'purple', icon_type:'package', title:'Integrasi Data UMP 2026 38 Provinsi', timestamp_label:'19 DEC 11:35 PM' },
-                { id:6, color:'indigo', icon_type:'shield_alert', title:'Kalibrasi Deep Autoencoder Loss', timestamp_label:'16 DEC 4:41 PM' },
+                { id:4, color:'amber', icon_type:'credit_card', title:'Klarifikasi WLTK (Kemnaker) Defisit 35 Pekerja', timestamp_label:'20 DEC 3:52 PM' },
+                { id:5, color:'purple', icon_type:'package', title:'Integrasi Data UMP (Upah Minimum) 2026 38 Provinsi', timestamp_label:'19 DEC 11:35 PM' },
+                { id:6, color:'indigo', icon_type:'shield_alert', title:'Kalibrasi Deep Autoencoder Reconstruction Loss', timestamp_label:'16 DEC 4:41 PM' },
               ])"
               :key="log.id"
               class="flex items-start gap-3 relative"

@@ -144,16 +144,16 @@ function handlePrint() {
       <h4 class="font-bold text-slate-900 mb-2">I. TEMUAN ANALISIS RISIKO KEPATUHAN (AI AUDIT TRIAGE)</h4>
       <div class="space-y-2 mb-6 text-justify text-xs" v-if="company">
         <div class="p-3 bg-red-50 border-l-4 border-red-600 rounded">
-          <p class="font-bold text-red-900">1. Indikasi Ketidakpatuhan Pelaporan Upah (Under-Reporting / Flat UMP)</p>
+          <p class="font-bold text-red-900">1. Indikasi Ketidakpatuhan Pelaporan Upah (Under-Reporting / Flat UMP - Upah Pas Minimum Provinsi)</p>
           <p class="text-red-800 mt-1">
-            Ditemukan sebanyak <strong>{{ (company.pct_flat_ump * 100).toFixed(1) }}%</strong> pekerja (termasuk jabatan staf ahli/manajerial) dilaporkan tepat pada batas Upah Minimum Provinsi (UMP) <strong>{{ company.provinsi }}</strong> dengan nilai <em>Shannon Entropy</em> <strong>{{ company.shannon_entropy.toFixed(3) }}</strong>.
+            Ditemukan sebanyak <strong>{{ (company.pct_flat_ump * 100).toFixed(1) }}%</strong> pekerja (termasuk jabatan staf ahli/manajerial) dilaporkan tepat pada batas Upah Minimum Provinsi (UMP) <strong>{{ company.provinsi }}</strong> dengan nilai <em>Shannon Entropy (Keragaman Gaji Rendah)</em> <strong>{{ company.shannon_entropy.toFixed(3) }}</strong>.
           </p>
         </div>
 
         <div v-if="company.headcount_deficit > 0" class="p-3 bg-amber-50 border-l-4 border-amber-600 rounded">
-          <p class="font-bold text-amber-900">2. Indikasi Ketidakpatuhan Pendaftaran Pekerja (Under-Coverage)</p>
+          <p class="font-bold text-amber-900">2. Indikasi Ketidakpatuhan Pendaftaran Pekerja (Under-Coverage vs WLTK Kemnaker)</p>
           <p class="text-amber-800 mt-1">
-            Terdapat defisit sebanyak <strong>{{ company.headcount_deficit }} tenaga kerja aktif</strong> yang tercatat pada basis data Wajib Lapor Ketenagakerjaan (WLTK) namun belum didaftarkan sebagai peserta JKN e-Dabu.
+            Terdapat defisit sebanyak <strong>{{ company.headcount_deficit }} tenaga kerja aktif</strong> yang tercatat pada basis data resmi Wajib Lapor Ketenagakerjaan di Perusahaan (WLTK Kemnaker) namun belum didaftarkan sebagai peserta JKN (Jaminan Kesehatan Nasional) pada sistem e-Dabu BPJS Kesehatan.
           </p>
         </div>
       </div>
@@ -165,8 +165,8 @@ function handlePrint() {
       </p>
       <ul class="list-disc list-inside text-xs space-y-1 mb-8 text-slate-800">
         <li>Rekapitulasi Daftar Gaji / Slip Payroll Asli 3 (tiga) bulan terakhir.</li>
-        <li>Bukti Setor & Pelaporan SPT PPh Pasal 21 Tahun Berjalan.</li>
-        <li>Buku Induk Karyawan & Dokumen Wajib Lapor Ketenagakerjaan (WLTK) terbaru.</li>
+        <li>Bukti Setor & Pelaporan SPT PPh Pasal 21 (Pajak Penghasilan Karyawan) Tahun Berjalan.</li>
+        <li>Buku Induk Karyawan & Dokumen Wajib Lapor Ketenagakerjaan di Perusahaan (WLTK Kemnaker) terbaru.</li>
         <li>Surat Perjanjian Kerja Waktu Tertentu (PKWT) / PKWTT seluruh karyawan aktif.</li>
       </ul>
 

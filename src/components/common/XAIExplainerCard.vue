@@ -157,7 +157,7 @@ async function copyNarrative() {
           <div class="flex items-center gap-2">
             <Sparkles class="w-4 h-4 text-teal-600" />
             <h4 class="text-xs font-black text-gray-800 uppercase tracking-wider">
-              Dekomposisi Kontribusi Faktor Anomali (SHAP Attribution)
+              Dekomposisi Kontribusi Faktor Anomali (SHAP - SHapley Additive exPlanations / Analisis XAI)
             </h4>
           </div>
           <span class="text-[11px] text-gray-400 font-medium">Model: Random Forest Triager v{{ xaiData.model_version }}</span>

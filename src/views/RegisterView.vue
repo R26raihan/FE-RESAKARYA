@@ -157,10 +157,10 @@ async function handleRegister() {
 
           <div class="pt-4 space-y-4">
             <h2 class="text-xl font-bold leading-tight">
-              Daftarkan Badan Usaha Anda ke Ekosistem Kepatuhan e-Dabu
+              Daftarkan Badan Usaha Anda ke Ekosistem Kepatuhan e-Dabu (Elektronik Data Badan Usaha)
             </h2>
             <p class="text-xs text-teal-100/85 leading-relaxed">
-              Dapatkan akses langsung ke Portal Mandiri untuk rekonsiliasi data upah, validasi mandiri kepatuhan JKN, serta penerbitan Bukti Penerimaan Elektronik (BPE) resmi.
+              Dapatkan akses langsung ke Portal Mandiri untuk rekonsiliasi data upah, validasi mandiri kepatuhan JKN (Jaminan Kesehatan Nasional), serta penerbitan BPE (Bukti Penerimaan Elektronik) resmi.
             </p>
           </div>
 
@@ -169,7 +169,7 @@ async function handleRegister() {
             <div class="flex items-start gap-3 text-xs bg-white/10 p-3 rounded-2xl border border-white/10">
               <CheckCircle2 class="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <div>
-                <span class="font-bold block">ID Badan Usaha Otomatis</span>
+                <span class="font-bold block">ID Badan Usaha Otomatis (Company ID)</span>
                 <span class="text-teal-100/80 text-[11px]">Sistem secara otomatis mengenerate Company ID resmi terintegrasi.</span>
               </div>
             </div>
@@ -177,7 +177,7 @@ async function handleRegister() {
             <div class="flex items-start gap-3 text-xs bg-white/10 p-3 rounded-2xl border border-white/10">
               <ShieldCheck class="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <div>
-                <span class="font-bold block">Kepatuhan UU PDP No. 27/2022</span>
+                <span class="font-bold block">Kepatuhan UU PDP (Perlindungan Data Pribadi No. 27/2022)</span>
                 <span class="text-teal-100/80 text-[11px]">Enkripsi kata sandi PBKDF2-SHA256 & masking data payroll otomatis.</span>
               </div>
             </div>
@@ -186,14 +186,14 @@ async function handleRegister() {
               <Building class="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <div>
                 <span class="font-bold block">Benchmark Regional Dinamis</span>
-                <span class="text-teal-100/80 text-[11px]">Penyesuaian batas UMP 2026 & standar upah riil BPS 38 provinsi.</span>
+                <span class="text-teal-100/80 text-[11px]">Penyesuaian batas UMP 2026 (Upah Minimum Provinsi) & standar upah riil BPS (Badan Pusat Statistik) 38 provinsi.</span>
               </div>
             </div>
           </div>
         </div>
 
         <div class="pt-6 border-t border-white/15 text-[11px] text-teal-200">
-          <span>BPJS Kesehatan RI • Kedeputan Wasrik</span>
+          <span>BPJS Kesehatan RI • Kedeputan Wasrik (Pengawasan & Pemeriksaan)</span>
         </div>
       </div>
 
@@ -204,7 +204,7 @@ async function handleRegister() {
           <div class="flex items-center justify-between pb-4 border-b border-gray-100">
             <div>
               <h2 class="text-lg font-extrabold text-gray-900">Registrasi Akun Perusahaan</h2>
-              <p class="text-xs text-gray-500 mt-0.5">Lengkapi profil PIC dan identitas Badan Usaha</p>
+              <p class="text-xs text-gray-500 mt-0.5">Lengkapi profil PIC (Person in Charge / Penanggung Jawab) dan identitas Badan Usaha</p>
             </div>
             <button
               @click="fillDemoData"
@@ -235,12 +235,12 @@ async function handleRegister() {
             <div class="space-y-3">
               <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider flex items-center gap-1.5">
                 <User class="w-3.5 h-3.5" />
-                <span>1. Data PIC Pelapor (HRD / Finance)</span>
+                <span>1. Data PIC (Person in Charge / Penanggung Jawab HRD & Finance)</span>
               </p>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[11px] font-bold text-gray-700 mb-1">Nama Lengkap PIC *</label>
+                  <label class="block text-[11px] font-bold text-gray-700 mb-1">Nama Lengkap PIC (Penanggung Jawab) *</label>
                   <div class="relative">
                     <User class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
                     <input
@@ -350,7 +350,7 @@ async function handleRegister() {
                 </div>
 
                 <div>
-                  <label class="block text-[11px] font-bold text-gray-700 mb-1">Sektor Usaha (KBLI) *</label>
+                  <label class="block text-[11px] font-bold text-gray-700 mb-1">Sektor Usaha (KBLI - Klasifikasi Baku Lapangan Usaha) *</label>
                   <div class="relative">
                     <Briefcase class="w-4 h-4 text-gray-400 absolute left-3 top-3" />
                     <select
@@ -367,7 +367,7 @@ async function handleRegister() {
 
               <!-- UMP helper badge -->
               <div class="p-2.5 rounded-xl bg-teal-50/70 border border-teal-100 flex items-center justify-between text-[11px] text-teal-800">
-                <span>Acuan Batas Bawah UMP 2026 di {{ form.company_provinsi }}:</span>
+                <span>Acuan Batas Bawah UMP 2026 (Upah Minimum Provinsi) di {{ form.company_provinsi }}:</span>
                 <span class="font-mono font-bold">Rp {{ currentUmp.toLocaleString('id-ID') }}</span>
               </div>
             </div>
@@ -391,7 +391,7 @@ async function handleRegister() {
         <div class="pt-4 mt-4 border-t border-gray-100 text-center text-xs text-gray-500">
           <span>Sudah memiliki akun terdaftar?</span>
           <router-link to="/login" class="text-teal-600 font-bold hover:underline ml-1">
-            Masuk ke Portal e-Dabu
+            Masuk ke Portal e-Dabu (Elektronik Data Badan Usaha)
           </router-link>
         </div>
       </div>

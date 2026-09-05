@@ -81,11 +81,11 @@ function formatRupiah(val?: number) {
               <th class="py-3 px-4">NO</th>
               <th class="py-3 px-4">PROVINSI</th>
               <th class="py-3 px-4">GUGUS WILAYAH</th>
-              <th class="py-3 px-4 text-right">REGULASI UMP 2026</th>
-              <th class="py-3 px-4 text-right">UPAH RIIL BPS</th>
+              <th class="py-3 px-4 text-right">UMP 2026 (UPAH MINIMUM PROVINSI)</th>
+              <th class="py-3 px-4 text-right">UPAH RIIL BPS (BADAN PUSAT STATISTIK)</th>
               <th class="py-3 px-4 text-right">KENAIKAN NOMINAL</th>
               <th class="py-3 px-4 text-center">RASIO UMP/BPS</th>
-              <th class="py-3 px-4 text-right">ESTIMASI CAGR</th>
+              <th class="py-3 px-4 text-right">ESTIMASI CAGR (PERTUMBUHAN TAHUNAN)</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
