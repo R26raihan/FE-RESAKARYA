@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import { Bell, Search, Settings, User, ShieldCheck } from 'lucide-vue-next';
+import { Bell, Search, Settings, User, ShieldCheck, Building2, LogOut } from 'lucide-vue-next';
 import { useComplianceStore } from '@/stores/compliance';
-import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { useRoute, useRouter } from 'vue-router';
 import { computed } from 'vue';
 
 const store = useComplianceStore();
+const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 
 const pageTitle = computed(() => {
   switch (route.name) {
+    case 'portal-bu':
+      return 'Portal Mandiri Pelaporan Badan Usaha';
     case 'triage':
       return 'Antrean Triase Wasrik';
     case 'companies':
       return 'Direktori Master Badan Usaha';
     case 'company-detail':
       return 'Detail Investigasi Entitas';
-    case 'regional':
+    case 'benchmark':
       return 'Benchmark Regional 38 Provinsi';
     case 'bap-generator':
       return 'Auto-BAP Generator';
@@ -26,6 +31,12 @@ const pageTitle = computed(() => {
       return 'Dashboard';
   }
 });
+
+function handleProfileClick() {
+  if (!authStore.isAuthenticated) {
+    router.push('/login');
+  }
+}
 </script>
 
 <template>
@@ -44,8 +55,8 @@ const pageTitle = computed(() => {
 
     <!-- Right Controls: Search, Sign In, Settings, Notifications -->
     <div class="flex items-center gap-3">
-      <!-- Search Input Pill -->
-      <div class="relative w-56 sm:w-64">
+      <!-- Search Input Pill (Only for Admin) -->
+      <div v-if="authStore.isAdmin" class="relative w-56 sm:w-64">
         <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           v-model="store.searchQuery"
@@ -56,10 +67,24 @@ const pageTitle = computed(() => {
         />
       </div>
 
-      <!-- Sign In / User Pill -->
-      <button class="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-teal-600 transition-colors px-2 py-1.5 rounded-lg">
-        <User class="w-3.5 h-3.5 text-gray-500" />
-        <span class="hidden sm:inline">Wasrik BPJS</span>
+      <!-- Active User / Role Badge -->
+      <button
+        @click="handleProfileClick"
+        class="flex items-center gap-2 text-xs font-bold text-gray-700 bg-white border border-gray-100 shadow-sm px-3 py-1.5 rounded-xl hover:bg-gray-50 transition-colors"
+      >
+        <div class="w-5 h-5 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-[10px]">
+          <span v-if="authStore.isAdmin">🛡️</span>
+          <span v-else>🏢</span>
+        </div>
+        <span class="hidden sm:inline">{{ authStore.currentUser.name }}</span>
+        <span
+          :class="[
+            'text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider',
+            authStore.isAdmin ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
+          ]"
+        >
+          {{ authStore.role }}
+        </span>
       </button>
 
       <!-- Settings Icon -->
@@ -70,9 +95,10 @@ const pageTitle = computed(() => {
       <!-- Notification Bell -->
       <button class="w-8 h-8 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors relative">
         <Bell class="w-3.5 h-3.5" />
-        <span class="w-2 h-2 rounded-full bg-rose-500 absolute top-2 right-2 ring-2 ring-white"></span>
+        <span class="w-2 h-2 rounded-full bg-teal-500 absolute top-2 right-2 ring-2 ring-white"></span>
       </button>
     </div>
   </header>
 </template>
+
 

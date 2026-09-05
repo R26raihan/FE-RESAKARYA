@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
+import { computed } from 'vue';
+import { RouterView, useRoute } from 'vue-router';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import Navbar from '@/components/layout/Navbar.vue';
+
+const route = useRoute();
+const isLoginPage = computed(() => route.name === 'login');
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8F9FA] flex text-gray-700 font-sans antialiased selection:bg-teal-500 selection:text-white">
+  <div v-if="isLoginPage" class="min-h-screen bg-[#F8F9FA] selection:bg-teal-500 selection:text-white">
+    <RouterView />
+  </div>
+
+  <div v-else class="min-h-screen bg-[#F8F9FA] flex text-gray-700 font-sans antialiased selection:bg-teal-500 selection:text-white">
     <!-- Floating Sidebar -->
     <Sidebar />
 
@@ -19,4 +27,5 @@ import Navbar from '@/components/layout/Navbar.vue';
     </div>
   </div>
 </template>
+
 
