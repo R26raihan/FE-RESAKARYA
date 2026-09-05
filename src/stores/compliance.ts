@@ -7,10 +7,17 @@ import type {
   ComplianceKPI,
   RegionalUMP,
   SektorDistribution,
-  WilayahDistribution
+  WilayahDistribution,
+  DashboardKPI,
+  DashboardWilayahItem,
+  DashboardSektorItem,
+  DashboardComplianceStats,
+  TriageQueueSummary,
+  AuditActivityLogItem,
+  PredictionResult,
 } from '@/types';
 
-// Default initial mock data for immediate instant rendering
+// ─── Fallback Initial Data (instant rendering saat API offline) ───────────────
 const initialKpis: ComplianceKPI = {
   total_companies: 2000,
   total_workers: 54300,
@@ -21,6 +28,17 @@ const initialKpis: ComplianceKPI = {
   avg_wage_anomaly: 3620000,
   avg_entropy_normal: 0.825,
   avg_entropy_anomaly: 0.165,
+};
+
+const initialDashboardKpis: DashboardKPI = {
+  total_companies: 2000,
+  total_anomalies: 300,
+  total_headcount_deficit: 14850,
+  avg_wage_normal: 5850000,
+  anomaly_rate_pct: 15.0,
+  avg_pct_flat_ump_anomali: 74.2,
+  total_leakage_estimate_monthly: 4350000000,
+  total_leakage_estimate_annual: 52200000000,
 };
 
 const initialSektor: SektorDistribution[] = [
@@ -118,30 +136,41 @@ const initialCompanies: CompanySummary[] = [
   }
 ];
 
-
 export const useComplianceStore = defineStore('compliance', () => {
+  // ─── Core state ────────────────────────────────────────────────────────────
   const kpis = ref<ComplianceKPI>(initialKpis);
+  const dashboardKpis = ref<DashboardKPI>(initialDashboardKpis);
   const companies = ref<CompanySummary[]>(initialCompanies);
   const totalCompanies = ref(2000);
   const currentPage = ref(1);
   const totalPages = ref(100);
   const pageSize = ref(20);
   const selectedCompany = ref<CompanyDetail | null>(null);
-  
+
   const regionalData = ref<RegionalUMP[]>([]);
   const sektorDistribution = ref<SektorDistribution[]>(initialSektor);
   const wilayahDistribution = ref<WilayahDistribution[]>([]);
-  
+
+  // ─── Dashboard-specific state ──────────────────────────────────────────────
+  const dashboardWilayah = ref<DashboardWilayahItem[]>([]);
+  const dashboardSektor = ref<DashboardSektorItem[]>([]);
+  const dashboardComplianceStats = ref<DashboardComplianceStats | null>(null);
+  const triageQueueSummary = ref<TriageQueueSummary | null>(null);
+  const auditActivityLog = ref<AuditActivityLogItem[]>([]);
+  const lastPrediction = ref<PredictionResult | null>(null);
+
+  // ─── UI state ──────────────────────────────────────────────────────────────
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
-  // Filters
+  // ─── Filters ───────────────────────────────────────────────────────────────
   const filterProvinsi = ref('');
   const filterSektor = ref('');
   const filterSkala = ref('');
   const filterLabelAnomali = ref<number | null>(null);
   const searchQuery = ref('');
 
+  // ─── Analytics (old) endpoints ────────────────────────────────────────────
   async function fetchKPIs() {
     try {
       const res = await apiClient.get<ComplianceKPI>('/analytics/kpi');
@@ -169,6 +198,81 @@ export const useComplianceStore = defineStore('compliance', () => {
     }
   }
 
+  // ─── Dashboard dedicated endpoints ────────────────────────────────────────
+
+  /** KPI 4 stat cards dashboard — mengambil dari /dashboard/kpis */
+  async function fetchDashboardKPIs() {
+    try {
+      const res = await apiClient.get<DashboardKPI>('/dashboard/kpis');
+      if (res.data) dashboardKpis.value = res.data;
+    } catch (err: any) {
+      console.warn('Dashboard KPI API unavailable, using fallback:', err.message);
+    }
+  }
+
+  /** Distribusi anomali per gugus wilayah untuk bar chart — /dashboard/wilayah-distribution */
+  async function fetchDashboardWilayah() {
+    try {
+      const res = await apiClient.get<DashboardWilayahItem[]>('/dashboard/wilayah-distribution');
+      if (res.data && res.data.length > 0) dashboardWilayah.value = res.data;
+    } catch (err: any) {
+      console.warn('Dashboard Wilayah API unavailable:', err.message);
+    }
+  }
+
+  /** Distribusi per sektor KBLI untuk donut/tabel — /dashboard/sektor-distribution */
+  async function fetchDashboardSektor() {
+    try {
+      const res = await apiClient.get<DashboardSektorItem[]>('/dashboard/sektor-distribution');
+      if (res.data && res.data.length > 0) dashboardSektor.value = res.data;
+    } catch (err: any) {
+      console.warn('Dashboard Sektor API unavailable:', err.message);
+    }
+  }
+
+  /** Sub-metrics 4 kotak (Flat UMP, Entropy, Defisit, Target) — /dashboard/compliance-stats */
+  async function fetchComplianceStats() {
+    try {
+      const res = await apiClient.get<DashboardComplianceStats>('/dashboard/compliance-stats');
+      if (res.data) dashboardComplianceStats.value = res.data;
+    } catch (err: any) {
+      console.warn('Dashboard Compliance Stats API unavailable:', err.message);
+    }
+  }
+
+  /** Ringkasan KPI antrean triage — /dashboard/triage-queue-summary */
+  async function fetchTriageQueueSummary() {
+    try {
+      const res = await apiClient.get<TriageQueueSummary>('/dashboard/triage-queue-summary');
+      if (res.data) triageQueueSummary.value = res.data;
+    } catch (err: any) {
+      console.warn('Triage Queue Summary API unavailable:', err.message);
+    }
+  }
+
+  /** Log aktivitas Wasrik untuk sidebar timeline — /dashboard/audit-activity-log */
+  async function fetchAuditActivityLog() {
+    try {
+      const res = await apiClient.get<AuditActivityLogItem[]>('/dashboard/audit-activity-log');
+      if (res.data && res.data.length > 0) auditActivityLog.value = res.data;
+    } catch (err: any) {
+      console.warn('Audit Activity Log API unavailable:', err.message);
+    }
+  }
+
+  /** Prediksi ML satu badan usaha — POST /predict/from-db/{company_id} */
+  async function predictCompany(companyId: string): Promise<PredictionResult | null> {
+    try {
+      const res = await apiClient.post<PredictionResult>(`/predict/from-db/${companyId}`);
+      if (res.data) lastPrediction.value = res.data;
+      return res.data;
+    } catch (err: any) {
+      console.warn('Prediction API unavailable:', err.message);
+      return null;
+    }
+  }
+
+  // ─── Regional UMP ──────────────────────────────────────────────────────────
   async function fetchRegionalUMP() {
     try {
       const res = await apiClient.get<RegionalUMP[]>('/regional/ump');
@@ -192,6 +296,7 @@ export const useComplianceStore = defineStore('compliance', () => {
     }
   }
 
+  // ─── Companies ────────────────────────────────────────────────────────────
   async function fetchCompanies(page = 1) {
     isLoading.value = true;
     error.value = null;
@@ -259,7 +364,9 @@ export const useComplianceStore = defineStore('compliance', () => {
   }
 
   return {
+    // State
     kpis,
+    dashboardKpis,
     companies,
     totalCompanies,
     currentPage,
@@ -269,19 +376,35 @@ export const useComplianceStore = defineStore('compliance', () => {
     regionalData,
     sektorDistribution,
     wilayahDistribution,
+    dashboardWilayah,
+    dashboardSektor,
+    dashboardComplianceStats,
+    triageQueueSummary,
+    auditActivityLog,
+    lastPrediction,
     isLoading,
     error,
+    // Filters
     filterProvinsi,
     filterSektor,
     filterSkala,
     filterLabelAnomali,
     searchQuery,
+    // Actions — Analytics
     fetchKPIs,
     fetchSektorDistribution,
     fetchWilayahDistribution,
+    // Actions — Dashboard (new)
+    fetchDashboardKPIs,
+    fetchDashboardWilayah,
+    fetchDashboardSektor,
+    fetchComplianceStats,
+    fetchTriageQueueSummary,
+    fetchAuditActivityLog,
+    predictCompany,
+    // Actions — Regional & Companies
     fetchRegionalUMP,
     fetchCompanies,
     fetchCompanyDetail,
   };
 });
-

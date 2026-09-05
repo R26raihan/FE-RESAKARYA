@@ -75,3 +75,79 @@ export interface WilayahDistribution {
   min_ump_2026: number;
   max_ump_2026: number;
 }
+
+// ─── Dashboard Endpoint Types (new) ──────────────────────────────────────────
+
+/** Response dari GET /dashboard/kpis — 4 stat card utama */
+export interface DashboardKPI {
+  total_companies: number;
+  total_anomalies: number;
+  total_headcount_deficit: number;
+  avg_wage_normal: number;
+  anomaly_rate_pct: number;
+  avg_pct_flat_ump_anomali: number;
+  total_leakage_estimate_monthly: number;
+  total_leakage_estimate_annual: number;
+}
+
+/** Response dari GET /dashboard/wilayah-distribution — bar chart anomali per wilayah */
+export interface DashboardWilayahItem {
+  wilayah: string;
+  total_companies: number;
+  total_anomalies: number;
+  anomaly_ratio_pct: number;
+}
+
+/** Response dari GET /dashboard/sektor-distribution — distribusi per sektor */
+export interface DashboardSektorItem {
+  sektor_kbli: string;
+  total_companies: number;
+  total_anomalies: number;
+  total_normal: number;
+  anomaly_rate_pct: number;
+  avg_shannon_entropy: number;
+  avg_pct_flat_ump: number;
+}
+
+/** Response dari GET /dashboard/compliance-stats — 4 sub-metric card */
+export interface DashboardComplianceStats {
+  flat_ump_extreme_count: number;
+  flat_ump_extreme_pct: number;
+  avg_entropy_anomali: number;
+  total_headcount_deficit: number;
+  target_audit_monthly: number;
+}
+
+/** Response dari GET /dashboard/triage-queue-summary — KPI cards halaman triage */
+export interface TriageQueueSummary {
+  total_high_risk: number;
+  anomaly_rate_pct: number;
+  low_entropy_flat_ump_count: number;
+  low_entropy_flat_ump_pct: number;
+  leakage_estimate_monthly: number;
+  leakage_estimate_annual: number;
+  sop_audit_days: number;
+}
+
+/** Item dari GET /dashboard/audit-activity-log — sidebar timeline */
+export interface AuditActivityLogItem {
+  id: number;
+  type: string;
+  icon_type: string;
+  color: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  timestamp_label: string;
+}
+
+/** Response dari POST /predict/single */
+export interface PredictionResult {
+  company_id?: string;
+  prediction: 0 | 1;
+  prediction_label: string;
+  anomaly_probability: number;
+  compliance_risk_score: number;
+  triage_urgency: string;
+  status_badge: 'Merah' | 'Kuning' | 'Hijau';
+}

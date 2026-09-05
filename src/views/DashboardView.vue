@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useComplianceStore } from '@/stores/compliance';
 import StatCard from '@/components/common/StatCard.vue';
 import RiskBadge from '@/components/common/RiskBadge.vue';
@@ -31,9 +31,11 @@ const store = useComplianceStore();
 
 onMounted(async () => {
   await Promise.all([
-    store.fetchKPIs(),
-    store.fetchSektorDistribution(),
-    store.fetchWilayahDistribution(),
+    store.fetchDashboardKPIs(),
+    store.fetchDashboardWilayah(),
+    store.fetchDashboardSektor(),
+    store.fetchComplianceStats(),
+    store.fetchAuditActivityLog(),
     store.fetchCompanies(1),
   ]);
 });
@@ -42,6 +44,35 @@ function formatRupiah(val?: number) {
   if (!val) return 'Rp 0';
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 }
+
+function formatMilliar(val?: number) {
+  if (!val) return 'Rp 0';
+  if (val >= 1_000_000_000) return `Rp ${(val / 1_000_000_000).toFixed(2)} M`;
+  if (val >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)} Jt`;
+  return formatRupiah(val);
+}
+
+// Hitung tinggi bar chart wilayah secara dinamis dari data real
+const wilayahBarData = computed(() => {
+  const data = store.dashboardWilayah;
+  if (!data || data.length === 0) {
+    return [
+      { label: 'Jawa', height: 35 },
+      { label: 'Sum', height: 65 },
+      { label: 'Bali', height: 40 },
+      { label: 'Kal', height: 85 },
+      { label: 'Sul', height: 50 },
+      { label: 'Mal', height: 90 },
+      { label: 'Pap', height: 75 },
+    ];
+  }
+  const maxRatio = Math.max(...data.map(d => d.anomaly_ratio_pct));
+  return data.map(d => ({
+    label: d.wilayah.substring(0, 3),
+    height: maxRatio > 0 ? Math.round((d.anomaly_ratio_pct / maxRatio) * 90) + 5 : 10,
+    raw: d,
+  }));
+});
 
 // Company avatars for table
 const companyIcons = [
@@ -54,15 +85,16 @@ const companyIcons = [
 ];
 </script>
 
+
 <template>
   <div class="space-y-6">
     <!-- Row 1: 4 Top Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <StatCard
         title="RERATA UPAH NORMAL"
-        :value="formatRupiah(store.kpis.avg_wage_normal)"
-        trend="+55%"
-        :trend-positive="true"
+        :value="formatRupiah(store.dashboardKpis.avg_wage_normal)"
+        :trend="'+' + store.dashboardKpis.anomaly_rate_pct.toFixed(1) + '% anomali'"
+        :trend-positive="false"
         subtitle="Benchmark BPS & Pasar"
       >
         <template #icon><Wallet class="w-5 h-5 text-white" /></template>
@@ -70,7 +102,7 @@ const companyIcons = [
 
       <StatCard
         title="TOTAL BADAN USAHA"
-        :value="store.kpis.total_companies.toLocaleString('id-ID')"
+        :value="store.dashboardKpis.total_companies.toLocaleString('id-ID')"
         trend="+5%"
         :trend-positive="true"
         subtitle="Entitas Terdaftar e-Dabu"
@@ -80,8 +112,8 @@ const companyIcons = [
 
       <StatCard
         title="BADAN USAHA ANOMALI"
-        :value="store.kpis.total_anomalies.toLocaleString('id-ID')"
-        trend="-14%"
+        :value="store.dashboardKpis.total_anomalies.toLocaleString('id-ID')"
+        :trend="store.dashboardKpis.anomaly_rate_pct.toFixed(1) + '% populasi'"
         :trend-positive="false"
         subtitle="Prioritas Triase Wasrik"
       >
@@ -90,9 +122,9 @@ const companyIcons = [
 
       <StatCard
         title="DEFISIT TENAGA KERJA"
-        :value="store.kpis.total_headcount_deficit.toLocaleString('id-ID')"
+        :value="store.dashboardKpis.total_headcount_deficit.toLocaleString('id-ID')"
         trend="+8%"
-        :trend-positive="true"
+        :trend-positive="false"
         subtitle="Peserta Belum Didaftarkan"
       >
         <template #icon><ShoppingCart class="w-5 h-5 text-white" /></template>
@@ -169,34 +201,17 @@ const companyIcons = [
         <!-- Top Dark Navy Card with Glowing White Bars -->
         <div class="bg-[#1A1F37] rounded-2xl p-5 mb-4 relative overflow-hidden shadow-inner">
           <div class="h-44 flex items-end justify-between gap-2 px-2 pt-4 pb-2 border-b border-white/10">
-            <!-- Bar items representing anomaly distribution -->
-            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <div class="w-full max-w-[12px] bg-white rounded-t-sm" style="height: 35%;"></div>
-              <span class="text-[9px] text-gray-400">Jawa</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <div class="w-full max-w-[12px] bg-white rounded-t-sm" style="height: 65%;"></div>
-              <span class="text-[9px] text-gray-400">Sum</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <div class="w-full max-w-[12px] bg-white rounded-t-sm" style="height: 40%;"></div>
-              <span class="text-[9px] text-gray-400">Bali</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <div class="w-full max-w-[12px] bg-white rounded-t-sm" style="height: 85%;"></div>
-              <span class="text-[9px] text-gray-400">Kal</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <div class="w-full max-w-[12px] bg-white rounded-t-sm" style="height: 50%;"></div>
-              <span class="text-[9px] text-gray-400">Sul</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <div class="w-full max-w-[12px] bg-white rounded-t-sm" style="height: 90%;"></div>
-              <span class="text-[9px] text-gray-400">Mal</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-              <div class="w-full max-w-[12px] bg-white rounded-t-sm" style="height: 75%;"></div>
-              <span class="text-[9px] text-gray-400">Pap</span>
+            <!-- Bar items — diisi dari data real API /dashboard/wilayah-distribution -->
+            <div
+              v-for="bar in wilayahBarData"
+              :key="bar.label"
+              class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end"
+            >
+              <div
+                class="w-full max-w-[12px] bg-white rounded-t-sm transition-all duration-700"
+                :style="{ height: bar.height + '%' }"
+              ></div>
+              <span class="text-[9px] text-gray-400">{{ bar.label }}</span>
             </div>
           </div>
           <p class="text-[10px] text-gray-400 text-center mt-2">Tingkat Rasio Anomali per Gugus Wilayah</p>
@@ -217,9 +232,11 @@ const companyIcons = [
                 </div>
                 <span>Flat UMP</span>
               </div>
-              <p class="text-sm font-bold text-gray-800">245 BU</p>
+              <p class="text-sm font-bold text-gray-800">
+                {{ store.dashboardComplianceStats?.flat_ump_extreme_count ?? 245 }} BU
+              </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
-                <div class="bg-teal-500 h-full rounded-full w-[80%]"></div>
+                <div class="bg-teal-500 h-full rounded-full" :style="{ width: (store.dashboardComplianceStats?.flat_ump_extreme_pct ?? 80) + '%' }"></div>
               </div>
             </div>
 
@@ -230,9 +247,11 @@ const companyIcons = [
                 </div>
                 <span>Entropy</span>
               </div>
-              <p class="text-sm font-bold text-gray-800">0.145</p>
+              <p class="text-sm font-bold text-gray-800">
+                {{ store.dashboardComplianceStats?.avg_entropy_anomali.toFixed(3) ?? '0.165' }}
+              </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
-                <div class="bg-teal-500 h-full rounded-full w-[60%]"></div>
+                <div class="bg-teal-500 h-full rounded-full" :style="{ width: ((store.dashboardComplianceStats?.avg_entropy_anomali ?? 0.165) * 100) + '%' }"></div>
               </div>
             </div>
 
@@ -243,7 +262,9 @@ const companyIcons = [
                 </div>
                 <span>Defisit</span>
               </div>
-              <p class="text-sm font-bold text-gray-800">14,8k</p>
+              <p class="text-sm font-bold text-gray-800">
+                {{ ((store.dashboardComplianceStats?.total_headcount_deficit ?? 14850) / 1000).toFixed(1) }}k
+              </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
                 <div class="bg-teal-500 h-full rounded-full w-[75%]"></div>
               </div>
@@ -256,7 +277,9 @@ const companyIcons = [
                 </div>
                 <span>Target</span>
               </div>
-              <p class="text-sm font-bold text-gray-800">300 BU</p>
+              <p class="text-sm font-bold text-gray-800">
+                {{ store.dashboardComplianceStats?.target_audit_monthly ?? 300 }} BU
+              </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
                 <div class="bg-teal-500 h-full rounded-full w-[90%]"></div>
               </div>
@@ -445,71 +468,41 @@ const companyIcons = [
             +30% <span class="text-gray-400 font-normal">verifikasi selesai bulan ini</span>
           </p>
 
-          <!-- Vertical Timeline Items -->
+          <!-- Vertical Timeline Items — data dari /dashboard/audit-activity-log -->
           <div class="space-y-4 mt-5 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
-            <!-- Timeline Item 1 -->
-            <div class="flex items-start gap-3 relative">
-              <div class="w-7 h-7 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center shrink-0 z-10">
-                <Bell class="w-3.5 h-3.5" />
+            <div
+              v-for="log in (store.auditActivityLog.length ? store.auditActivityLog : [
+                { id:1, color:'teal', icon_type:'bell', title:'Anomali Flat UMP BU-0013 terdeteksi', timestamp_label:'22 DEC 7:20 PM' },
+                { id:2, color:'rose', icon_type:'file_text', title:'Draf BAP Klarifikasi #BAP-088 terbit', timestamp_label:'21 DEC 11:21 PM' },
+                { id:3, color:'blue', icon_type:'shopping_cart', title:'Potensi Iuran Tertagih Rp 184 Juta', timestamp_label:'21 DEC 9:28 PM' },
+                { id:4, color:'amber', icon_type:'credit_card', title:'Klarifikasi WLTK Defisit 35 Pekerja', timestamp_label:'20 DEC 3:52 PM' },
+                { id:5, color:'purple', icon_type:'package', title:'Integrasi Data UMP 2026 38 Provinsi', timestamp_label:'19 DEC 11:35 PM' },
+                { id:6, color:'indigo', icon_type:'shield_alert', title:'Kalibrasi Deep Autoencoder Loss', timestamp_label:'16 DEC 4:41 PM' },
+              ])"
+              :key="log.id"
+              class="flex items-start gap-3 relative"
+            >
+              <div
+                class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10"
+                :class="{
+                  'bg-teal-50 text-teal-500': log.color === 'teal',
+                  'bg-rose-50 text-rose-500': log.color === 'rose',
+                  'bg-blue-50 text-blue-500': log.color === 'blue',
+                  'bg-amber-50 text-amber-500': log.color === 'amber',
+                  'bg-purple-50 text-purple-500': log.color === 'purple',
+                  'bg-indigo-50 text-indigo-500': log.color === 'indigo',
+                }"
+              >
+                <Bell v-if="log.icon_type === 'bell'" class="w-3.5 h-3.5" />
+                <FileText v-else-if="log.icon_type === 'file_text'" class="w-3.5 h-3.5" />
+                <ShoppingCart v-else-if="log.icon_type === 'shopping_cart'" class="w-3.5 h-3.5" />
+                <CreditCard v-else-if="log.icon_type === 'credit_card'" class="w-3.5 h-3.5" />
+                <Package v-else-if="log.icon_type === 'package'" class="w-3.5 h-3.5" />
+                <ShieldAlert v-else class="w-3.5 h-3.5" />
               </div>
               <div>
-                <p class="text-xs font-bold text-gray-800">Anomali Flat UMP BU-0013 terdeteksi</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">22 DEC 7:20 PM</p>
-              </div>
-            </div>
-
-            <!-- Timeline Item 2 -->
-            <div class="flex items-start gap-3 relative">
-              <div class="w-7 h-7 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 z-10">
-                <FileText class="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <p class="text-xs font-bold text-gray-800">Draf BAP Klarifikasi #BAP-088 terbit</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">21 DEC 11:21 PM</p>
-              </div>
-            </div>
-
-            <!-- Timeline Item 3 -->
-            <div class="flex items-start gap-3 relative">
-              <div class="w-7 h-7 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0 z-10">
-                <ShoppingCart class="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <p class="text-xs font-bold text-gray-800">Potensi Iuran Tertagih Rp 184 Juta</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">21 DEC 9:28 PM</p>
-              </div>
-            </div>
-
-            <!-- Timeline Item 4 -->
-            <div class="flex items-start gap-3 relative">
-              <div class="w-7 h-7 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 z-10">
-                <CreditCard class="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <p class="text-xs font-bold text-gray-800">Klarifikasi WLTK Defisit 35 Pekerja</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">20 DEC 3:52 PM</p>
-              </div>
-            </div>
-
-            <!-- Timeline Item 5 -->
-            <div class="flex items-start gap-3 relative">
-              <div class="w-7 h-7 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center shrink-0 z-10">
-                <Package class="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <p class="text-xs font-bold text-gray-800">Integrasi Data UMP 2026 38 Provinsi</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">19 DEC 11:35 PM</p>
-              </div>
-            </div>
-
-            <!-- Timeline Item 6 -->
-            <div class="flex items-start gap-3 relative">
-              <div class="w-7 h-7 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0 z-10">
-                <ShieldAlert class="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <p class="text-xs font-bold text-gray-800">Kalibrasi Deep Autoencoder Loss</p>
-                <p class="text-[10px] text-gray-400 mt-0.5">16 DEC 4:41 PM</p>
+                <p class="text-xs font-bold text-gray-800">{{ log.title }}</p>
+                <p class="text-[10px] text-gray-400 mt-0.5">{{ log.timestamp_label }}</p>
               </div>
             </div>
           </div>
