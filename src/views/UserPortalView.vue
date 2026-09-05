@@ -259,6 +259,31 @@ function processFile(file: File) {
   reader.readAsArrayBuffer(file);
 }
 
+const submissionHistory = ref<any[]>([]);
+const isLoadingHistory = ref<boolean>(false);
+
+async function fetchSubmissionHistory() {
+  isLoadingHistory.value = true;
+  try {
+    const cId = formProfile.value.company_id || authStore.currentUser?.company_id || '';
+    const res = await apiClient.get(`/submission/history?company_id=${encodeURIComponent(cId)}`);
+    if (res.data && Array.isArray(res.data)) {
+      submissionHistory.value = res.data;
+    }
+  } catch (e: any) {
+    console.warn('[History] Gagal memuat riwayat:', e?.message);
+  } finally {
+    isLoadingHistory.value = false;
+  }
+}
+
+onMounted(async () => {
+  if (compStore.regionalData.length === 0) {
+    await compStore.fetchRegionalUMP();
+  }
+  await fetchSubmissionHistory();
+});
+
 // 5. Submit to Backend
 async function submitToBackend() {
   if (parsedWorkers.value.length === 0) return;
@@ -268,6 +293,9 @@ async function submitToBackend() {
     const payload = {
       company_id: formProfile.value.company_id,
       company_name: formProfile.value.company_name,
+      user_id: authStore.currentUser?.id,
+      user_email: authStore.currentUser?.email,
+      file_name: uploadedFileName.value || 'Payroll_Upload_eDabu.xlsx',
       provinsi: formProfile.value.provinsi,
       sektor_kbli: formProfile.value.sektor_kbli,
       skala_usaha: formProfile.value.skala_usaha,
@@ -284,6 +312,7 @@ async function submitToBackend() {
     const res = await apiClient.post('/submission/upload', payload);
     submissionReceipt.value = res.data.receipt;
     currentStep.value = 4;
+    await fetchSubmissionHistory();
   } catch (err: any) {
     alert(`Terjadi kesalahan saat submit data: ${err?.response?.data?.detail || err.message}`);
   } finally {
@@ -296,6 +325,7 @@ function resetForm() {
   parsedWorkers.value = [];
   uploadedFileName.value = '';
   submissionReceipt.value = null;
+  fetchSubmissionHistory();
 }
 
 function printReceipt() {
@@ -862,6 +892,72 @@ function printReceipt() {
           <RefreshCw class="w-4 h-4" />
           <span>Input / Submit Data Lainnya</span>
         </button>
+      </div>
+    </div>
+
+    <!-- Riwayat Pelaporan Audit Trail Section -->
+    <div class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-4">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+            <FileSpreadsheet class="w-4 h-4 text-teal-600" />
+            <span>Riwayat Pelaporan Payroll Badan Usaha (Audit Trail Terverifikasi)</span>
+          </h3>
+          <p class="text-[11px] text-gray-500">Daftar laporan e-Dabu yang berhasil dikirim dan diverifikasi sistem REKSAKARYA BPJS Kesehatan.</p>
+        </div>
+        <button
+          @click="fetchSubmissionHistory"
+          :disabled="isLoadingHistory"
+          class="px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <RefreshCw :class="['w-3.5 h-3.5', isLoadingHistory ? 'animate-spin text-teal-600' : '']" />
+          <span>Segarkan</span>
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="submissionHistory.length === 0" class="p-8 text-center text-xs text-gray-400">
+        Belum ada riwayat pelaporan payroll dari Badan Usaha ini. Silakan lakukan upload data melalui form di atas.
+      </div>
+
+      <!-- Table History -->
+      <div v-else class="overflow-x-auto border border-gray-100 rounded-2xl">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-gray-50 text-[10px] uppercase font-bold text-gray-500 border-b border-gray-100">
+            <tr>
+              <th class="py-2.5 px-3">Nomor Registrasi</th>
+              <th class="py-2.5 px-3">Badan Usaha</th>
+              <th class="py-2.5 px-3">Nama Berkas</th>
+              <th class="py-2.5 px-3">Waktu Pelaporan</th>
+              <th class="py-2.5 px-3">Jumlah Pekerja</th>
+              <th class="py-2.5 px-3">Rata-rata Gaji</th>
+              <th class="py-2.5 px-3">Defisit WLTK</th>
+              <th class="py-2.5 px-3">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 text-gray-700">
+            <tr v-for="item in submissionHistory" :key="item.id" class="hover:bg-gray-50/80">
+              <td class="py-2.5 px-3 font-mono font-bold text-teal-700">{{ item.id }}</td>
+              <td class="py-2.5 px-3 font-medium">
+                <div>{{ item.company_name }}</div>
+                <div class="text-[10px] text-gray-400 font-mono">{{ item.company_id }}</div>
+              </td>
+              <td class="py-2.5 px-3 font-mono text-[11px] text-gray-600">{{ item.file_name || 'Payroll.xlsx' }}</td>
+              <td class="py-2.5 px-3 text-[11px] text-gray-500">{{ item.submitted_at }}</td>
+              <td class="py-2.5 px-3 font-bold">{{ item.total_workers_reported }} Orang</td>
+              <td class="py-2.5 px-3 font-mono">Rp {{ Math.round(item.mean_gaji_lapor || 0).toLocaleString('id-ID') }}</td>
+              <td class="py-2.5 px-3 font-mono">
+                <span v-if="item.headcount_deficit > 0" class="text-rose-600 font-bold">-{{ item.headcount_deficit }} Jiwa</span>
+                <span v-else class="text-emerald-600">Sesuai (0)</span>
+              </td>
+              <td class="py-2.5 px-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                  {{ item.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
