@@ -86,7 +86,7 @@ async function copyNarrative() {
           <div class="flex items-center gap-2">
             <h3 class="text-base font-black tracking-tight">Explainable AI (XAI) & RAG Audit Engine</h3>
             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-400/30 flex items-center gap-1">
-              <Sparkles class="w-3 h-3" /> Gemini 2.5 Flash
+              <Sparkles class="w-3 h-3" /> {{ xaiData?.llm_model || 'Gemini 3.6 Flash' }}
             </span>
           </div>
           <p class="text-xs text-slate-300 mt-0.5">

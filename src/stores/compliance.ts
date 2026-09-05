@@ -233,9 +233,12 @@ export const useComplianceStore = defineStore('compliance', () => {
   }
 
   async function fetchCompanyXAI(companyId: string) {
+    clearError('fetchCompanyXAI');
     isGeneratingXAI.value = true;
     try {
-      const { data } = await apiClient.get<XAIExplanationResponse>(`/xai/explain/${companyId}`);
+      const { data } = await apiClient.get<XAIExplanationResponse>(`/xai/explain/${companyId}`, {
+        timeout: 60000,
+      });
       selectedCompanyXAI.value = data;
       return data;
     } catch (err: any) {
