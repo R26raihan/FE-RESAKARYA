@@ -11,6 +11,8 @@ const pageTitle = computed(() => {
   switch (route.name) {
     case 'triage':
       return 'Antrean Triase Wasrik';
+    case 'companies':
+      return 'Direktori Master Badan Usaha';
     case 'company-detail':
       return 'Detail Investigasi Entitas';
     case 'regional':

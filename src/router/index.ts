@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DashboardView from '@/views/DashboardView.vue';
 import TriageQueueView from '@/views/TriageQueueView.vue';
+import CompanyListView from '@/views/CompanyListView.vue';
 import CompanyDetailView from '@/views/CompanyDetailView.vue';
 import RegionalBenchmarkView from '@/views/RegionalBenchmarkView.vue';
 import BapGeneratorView from '@/views/BapGeneratorView.vue';
@@ -22,7 +23,7 @@ const router = createRouter({
     {
       path: '/companies',
       name: 'companies',
-      component: TriageQueueView,
+      component: CompanyListView,
     },
     {
       path: '/companies/:id',
