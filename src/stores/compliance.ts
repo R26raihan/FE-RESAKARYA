@@ -15,6 +15,7 @@ import type {
   TriageQueueSummary,
   AuditActivityLogItem,
   PredictionResult,
+  XAIExplanationResponse,
 } from '@/types';
 
 export const useComplianceStore = defineStore('compliance', () => {
@@ -27,6 +28,8 @@ export const useComplianceStore = defineStore('compliance', () => {
   const totalPages = ref(1);
   const pageSize = ref(20);
   const selectedCompany = ref<CompanyDetail | null>(null);
+  const selectedCompanyXAI = ref<XAIExplanationResponse | null>(null);
+  const isGeneratingXAI = ref(false);
 
   const regionalData = ref<RegionalUMP[]>([]);
   const sektorDistribution = ref<SektorDistribution[]>([]);
@@ -222,11 +225,24 @@ export const useComplianceStore = defineStore('compliance', () => {
         return res.data;
       }
     } catch (err: any) {
-      error.value = err.message ?? 'Gagal mengambil detail Badan Usaha';
-      setError('company_detail', error.value!);
-      return null;
+      setError('fetchCompanyDetail', err.message);
+      selectedCompany.value = null;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  async function fetchCompanyXAI(companyId: string) {
+    isGeneratingXAI.value = true;
+    try {
+      const { data } = await apiClient.get<XAIExplanationResponse>(`/xai/explain/${companyId}`);
+      selectedCompanyXAI.value = data;
+      return data;
+    } catch (err: any) {
+      setError('fetchCompanyXAI', err.message);
+      return null;
+    } finally {
+      isGeneratingXAI.value = false;
     }
   }
 
@@ -240,6 +256,8 @@ export const useComplianceStore = defineStore('compliance', () => {
     totalPages,
     pageSize,
     selectedCompany,
+    selectedCompanyXAI,
+    isGeneratingXAI,
     regionalData,
     sektorDistribution,
     wilayahDistribution,
@@ -274,5 +292,6 @@ export const useComplianceStore = defineStore('compliance', () => {
     fetchRegionalUMP,
     fetchCompanies,
     fetchCompanyDetail,
+    fetchCompanyXAI,
   };
 });

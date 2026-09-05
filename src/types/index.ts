@@ -151,3 +151,58 @@ export interface PredictionResult {
   triage_urgency: string;
   status_badge: 'Merah' | 'Kuning' | 'Hijau';
 }
+
+// ─── XAI & RAG Types ─────────────────────────────────────────────────────────
+
+export interface FeatureContribution {
+  feature_name: string;
+  display_name: string;
+  feature_value: any;
+  shap_value: number;
+  contribution_pct: number;
+  direction: 'increases_risk' | 'decreases_risk';
+  interpretation: string;
+}
+
+export interface LegalGround {
+  act_name: string;
+  article: string;
+  description: string;
+  sanction: string;
+}
+
+export interface InvestigationRecommendation {
+  action: string;
+  priority: string;
+  focus_area: string;
+  documents_required: string[];
+}
+
+export interface XAIExplanationResponse {
+  company_id: string;
+  provinsi: string;
+  sektor_kbli: string;
+  skala_usaha: string;
+  total_workers_edabu: number;
+  headcount_deficit: number;
+  pct_flat_ump: number;
+  shannon_entropy: number;
+  wage_gap_ratio_bps: number;
+  mean_gaji_lapor: number;
+  median_gaji_lapor: number;
+  prediction_label: string;
+  is_anomaly: boolean;
+  compliance_risk_score: number;
+  triage_urgency: string;
+  estimated_monthly_leakage: number;
+  estimated_annual_leakage: number;
+  shap_features: FeatureContribution[];
+  ai_audit_narrative: string;
+  ai_summary: string;
+  legal_grounds: LegalGround[];
+  recommendations: InvestigationRecommendation[];
+  model_version: string;
+  llm_model: string;
+  generated_at: string;
+}
+

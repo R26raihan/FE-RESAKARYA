@@ -3,6 +3,7 @@ import { onMounted } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import { useComplianceStore } from '@/stores/compliance';
 import RiskBadge from '@/components/common/RiskBadge.vue';
+import XAIExplainerCard from '@/components/common/XAIExplainerCard.vue';
 import {
   Building2,
   MapPin,
@@ -122,38 +123,9 @@ function formatRupiah(val?: number) {
       </div>
     </div>
 
-    <!-- XAI Root Cause Attribution (SHAP Explanation) -->
-    <div class="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)]" v-if="store.selectedCompany.label_anomali === 1">
-      <div class="flex items-center gap-2 mb-3">
-        <BrainCircuit class="w-4 h-4 text-teal-500" />
-        <h3 class="text-sm font-bold text-gray-800">Explainable AI (XAI) — Root-Cause Attribution (SHAP Analysis)</h3>
-      </div>
-      <p class="text-xs text-gray-600 leading-relaxed mb-4">
-        Model Machine Learning menandai badan usaha ini sebagai <strong>High Risk Anomali</strong> berdasarkan dekomposisi kontribusi fitur berikut:
-      </p>
+    <!-- XAI & RAG Root Cause Attribution -->
+    <XAIExplainerCard :company-id="store.selectedCompany.company_id" />
 
-      <div class="space-y-3">
-        <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200/60 flex items-start gap-3">
-          <AlertTriangle class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-          <div class="text-xs">
-            <p class="font-bold text-rose-800">Modus A: Klaster Flat UMP Ekstrem (+52% Kontribusi Risiko)</p>
-            <p class="text-rose-700 mt-0.5">
-              Sebanyak <strong>{{ (store.selectedCompany.pct_flat_ump * 100).toFixed(1) }}%</strong> pekerja (termasuk jabatan Staf dan Supervisor) dilaporkan tepat pada angka UMP regional, menyebabkan nilai <em>Shannon Entropy</em> jatuh ke angka <strong>{{ store.selectedCompany.shannon_entropy.toFixed(3) }}</strong>.
-            </p>
-          </div>
-        </div>
-
-        <div v-if="store.selectedCompany.headcount_deficit > 0" class="p-3.5 rounded-xl bg-amber-50 border border-amber-200/60 flex items-start gap-3">
-          <AlertTriangle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div class="text-xs">
-            <p class="font-bold text-amber-800">Modus B: Defisit Pendaftaran Peserta (+38% Kontribusi Risiko)</p>
-            <p class="text-amber-700 mt-0.5">
-              Terdapat selisih <strong>{{ store.selectedCompany.headcount_deficit }} tenaga kerja</strong> yang tercatat di laporan WLTK namun belum didaftarkan ke sistem e-Dabu BPJS Kesehatan.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Micro Workers Table (Privacy / PII Masked) -->
     <div class="p-5 rounded-2xl bg-white border border-gray-100 shadow-[0_20px_27px_0_rgba(0,0,0,0.05)]">
