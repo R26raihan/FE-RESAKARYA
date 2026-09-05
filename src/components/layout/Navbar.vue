@@ -76,7 +76,7 @@ function handleProfileClick() {
           <span v-if="authStore.isAdmin">🛡️</span>
           <span v-else>🏢</span>
         </div>
-        <span class="hidden sm:inline">{{ authStore.currentUser.name }}</span>
+        <span class="hidden sm:inline">{{ authStore.currentUser?.name || 'Pengguna' }}</span>
         <span
           :class="[
             'text-[9px] font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider',

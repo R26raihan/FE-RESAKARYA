@@ -43,13 +43,8 @@ function handleLogout() {
 }
 
 function handleSwitchRole() {
-  if (authStore.isAdmin) {
-    authStore.switchRole('user');
-    router.push('/portal-bu');
-  } else {
-    authStore.switchRole('admin');
-    router.push('/');
-  }
+  authStore.logout();
+  router.push('/login');
 }
 </script>
 
@@ -166,8 +161,8 @@ function handleSwitchRole() {
           <div class="flex items-center gap-2">
             <span class="text-xs">👤</span>
             <div>
-              <p class="text-[11px] font-bold truncate max-w-[120px]">{{ authStore.currentUser.name }}</p>
-              <p class="text-[9px] text-teal-300 font-semibold">{{ authStore.currentUser.badge }}</p>
+              <p class="text-[11px] font-bold truncate max-w-[120px]">{{ authStore.currentUser?.name || 'Pengguna' }}</p>
+              <p class="text-[9px] text-teal-300 font-semibold">{{ authStore.currentUser?.badge || (authStore.isAdmin ? 'Petugas Wasrik' : 'PIC Badan Usaha') }}</p>
             </div>
           </div>
           <button

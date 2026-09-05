@@ -29,9 +29,10 @@ const currentStep = ref<number>(1);
 
 // Step 1: Profil Badan Usaha
 const formProfile = ref({
-  company_name: authStore.currentUser.companyName || 'PT Nusantara Tech Solusindo',
-  provinsi: authStore.currentUser.companyProvinsi || 'DKI Jakarta',
-  sektor_kbli: authStore.currentUser.companySektor || 'J - Informasi & Komunikasi',
+  company_id: authStore.currentUser?.company_id || 'BU-0013',
+  company_name: authStore.currentUser?.companyName || 'PT Nusantara Tech Solusindo',
+  provinsi: authStore.currentUser?.companyProvinsi || 'DKI Jakarta',
+  sektor_kbli: authStore.currentUser?.companySektor || 'J - Informasi & Komunikasi',
   skala_usaha: 'Menengah',
   wltk_headcount: 85,
 });
@@ -265,6 +266,7 @@ async function submitToBackend() {
 
   try {
     const payload = {
+      company_id: formProfile.value.company_id,
       company_name: formProfile.value.company_name,
       provinsi: formProfile.value.provinsi,
       sektor_kbli: formProfile.value.sektor_kbli,

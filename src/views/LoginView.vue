@@ -55,7 +55,7 @@ async function handleLogin() {
   errorMessage.value = '';
 
   try {
-    const result = await authStore.login(email.value, password.value, selectedRole.value);
+    const result = await authStore.login(email.value, password.value);
     if (result.success) {
       if (authStore.role === 'admin') {
         router.push('/');
@@ -63,10 +63,10 @@ async function handleLogin() {
         router.push('/portal-bu');
       }
     } else {
-      errorMessage.value = 'Email atau kata sandi salah. Silakan coba lagi.';
+      errorMessage.value = result.message || 'Email atau kata sandi salah. Silakan coba lagi.';
     }
   } catch (err: any) {
-    errorMessage.value = err?.response?.data?.detail || 'Terjadi kesalahan saat otentikasi.';
+    errorMessage.value = err?.response?.data?.detail || err?.message || 'Terjadi kesalahan saat otentikasi.';
   } finally {
     isSubmitting.value = false;
   }

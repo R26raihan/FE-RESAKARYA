@@ -9,6 +9,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: UserRole;
+  company_id?: string | null;
   institution: string;
   badge: string;
   companyName?: string;
@@ -17,53 +18,29 @@ export interface AuthUser {
   phone?: string;
 }
 
-const FALLBACK_ADMIN: AuthUser = {
-  id: 'USR-ADM-001',
-  name: 'Raihan Setiawan, S.Kom',
-  email: 'wasrik@bpjs-kesehatan.go.id',
-  role: 'admin',
-  institution: 'Kedeputian Pengawasan & Pemeriksaan BPJS Kesehatan',
-  badge: 'Petugas Wasrik Nasional',
-};
-
-const FALLBACK_USER: AuthUser = {
-  id: 'USR-BU-001',
-  name: 'Dimas Prabowo (HR Lead)',
-  email: 'hr@nusantaratech.co.id',
-  role: 'user',
-  institution: 'PT Nusantara Tech Solusindo',
-  badge: 'PIC Badan Usaha e-Dabu',
-  companyName: 'PT Nusantara Tech Solusindo',
-  companyProvinsi: 'DKI Jakarta',
-  companySektor: 'J - Informasi & Komunikasi',
-};
-
 export const useAuthStore = defineStore('auth', () => {
   const storedAuth = localStorage.getItem('reksakarya_auth');
   const storedToken = localStorage.getItem('reksakarya_token');
 
-  const initialUser: AuthUser = storedAuth ? JSON.parse(storedAuth) : FALLBACK_ADMIN;
-
-  const currentUser = ref<AuthUser>(initialUser);
-  const isAuthenticated = ref<boolean>(!!storedToken || !!storedAuth);
+  const currentUser = ref<AuthUser | null>(storedAuth ? JSON.parse(storedAuth) : null);
+  const isAuthenticated = ref<boolean>(!!storedToken && !!storedAuth);
   const token = ref<string | null>(storedToken);
   const demoAccounts = ref<any[]>([]);
 
-  const role = computed(() => currentUser.value.role);
-  const isAdmin = computed(() => currentUser.value.role === 'admin');
-  const isUser = computed(() => currentUser.value.role === 'user');
+  const role = computed<UserRole | null>(() => currentUser.value?.role || null);
+  const isAdmin = computed(() => currentUser.value?.role === 'admin');
+  const isUser = computed(() => currentUser.value?.role === 'user');
+  const companyId = computed(() => currentUser.value?.company_id || null);
 
-  function saveSession(user: AuthUser, authToken?: string) {
+  function saveSession(user: AuthUser, authToken: string) {
     currentUser.value = user;
     isAuthenticated.value = true;
-    if (authToken) {
-      token.value = authToken;
-      localStorage.setItem('reksakarya_token', authToken);
-    }
+    token.value = authToken;
+    localStorage.setItem('reksakarya_token', authToken);
     localStorage.setItem('reksakarya_auth', JSON.stringify(user));
   }
 
-  async function login(email: string, password: string = 'admin123', targetRole?: UserRole) {
+  async function login(email: string, password: string = 'admin123') {
     try {
       const res = await apiClient.post('/auth/login', {
         email: email.trim(),
@@ -77,6 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
           name: u.name,
           email: u.email,
           role: u.role as UserRole,
+          company_id: u.company_id || null,
           institution: u.institution || (u.role === 'admin' ? 'BPJS Kesehatan' : u.company_name),
           badge: u.badge || (u.role === 'admin' ? 'Petugas Wasrik' : 'PIC Badan Usaha'),
           companyName: u.company_name,
@@ -87,15 +65,11 @@ export const useAuthStore = defineStore('auth', () => {
         saveSession(authUser, res.data.access_token);
         return { success: true, user: authUser };
       }
+      return { success: false, message: 'Format response tidak valid dari server' };
     } catch (err: any) {
-      console.warn('[Auth] API login failed, attempting local fallback:', err?.message);
-      // Fallback if backend API is unreachable
-      const selectedRole = targetRole || (email.includes('bpjs') || email.includes('admin') ? 'admin' : 'user');
-      const fallback = selectedRole === 'admin' ? { ...FALLBACK_ADMIN, email } : { ...FALLBACK_USER, email };
-      saveSession(fallback, 'demo-token');
-      return { success: true, user: fallback };
+      const msg = err?.response?.data?.detail || err?.message || 'Gagal login. Periksa email dan kata sandi Anda.';
+      return { success: false, message: msg };
     }
-    return { success: false, message: 'Gagal login' };
   }
 
   async function fetchDemoAccounts() {
@@ -105,22 +79,14 @@ export const useAuthStore = defineStore('auth', () => {
         demoAccounts.value = res.data;
         return res.data;
       }
-    } catch (e) {
-      // ignore fallback
+    } catch (e: any) {
+      console.warn('[Auth] Gagal memuat daftar akun demo dari database:', e?.message);
     }
     return [];
   }
 
-  function switchRole(targetRole: UserRole) {
-    if (targetRole === 'admin') {
-      saveSession(FALLBACK_ADMIN, 'demo-admin-token');
-    } else {
-      saveSession(FALLBACK_USER, 'demo-user-token');
-    }
-  }
-
   function logout() {
-    currentUser.value = FALLBACK_ADMIN;
+    currentUser.value = null;
     isAuthenticated.value = false;
     token.value = null;
     localStorage.removeItem('reksakarya_auth');
@@ -134,10 +100,10 @@ export const useAuthStore = defineStore('auth', () => {
     role,
     isAdmin,
     isUser,
+    companyId,
     demoAccounts,
     login,
     fetchDemoAccounts,
-    switchRole,
     logout,
   };
 });
