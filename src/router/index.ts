@@ -7,6 +7,7 @@ import RegionalBenchmarkView from '@/views/RegionalBenchmarkView.vue';
 import BapGeneratorView from '@/views/BapGeneratorView.vue';
 import RegulationView from '@/views/RegulationView.vue';
 import LoginView from '@/views/LoginView.vue';
+import RegisterView from '@/views/RegisterView.vue';
 import UserPortalView from '@/views/UserPortalView.vue';
 import { useAuthStore } from '@/stores/auth';
 
@@ -17,6 +18,12 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
+      meta: { public: true },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
       meta: { public: true },
     },
     {
@@ -88,7 +95,7 @@ router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore();
 
   if (to.meta.public) {
-    if (to.name === 'login' && authStore.isAuthenticated) {
+    if ((to.name === 'login' || to.name === 'register') && authStore.isAuthenticated) {
       if (authStore.role === 'user') {
         return next('/portal-bu');
       } else {

@@ -5,11 +5,11 @@ import Sidebar from '@/components/layout/Sidebar.vue';
 import Navbar from '@/components/layout/Navbar.vue';
 
 const route = useRoute();
-const isLoginPage = computed(() => route.name === 'login');
+const isAuthPage = computed(() => route.name === 'login' || route.name === 'register');
 </script>
 
 <template>
-  <div v-if="isLoginPage" class="min-h-screen bg-[#F8F9FA] selection:bg-teal-500 selection:text-white">
+  <div v-if="isAuthPage" class="min-h-screen bg-[#F8F9FA] selection:bg-teal-500 selection:text-white">
     <RouterView />
   </div>
 

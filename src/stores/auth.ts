@@ -85,6 +85,46 @@ export const useAuthStore = defineStore('auth', () => {
     return [];
   }
 
+  async function register(payload: {
+    email: string;
+    password: string;
+    name: string;
+    company_name: string;
+    company_provinsi: string;
+    company_sektor: string;
+    phone?: string;
+  }) {
+    try {
+      const res = await apiClient.post('/auth/register', {
+        ...payload,
+        role: 'user',
+      });
+
+      if (res.data && res.data.user) {
+        const u = res.data.user;
+        const authUser: AuthUser = {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role as UserRole,
+          company_id: u.company_id || null,
+          institution: u.institution || u.company_name,
+          badge: u.badge || 'PIC Badan Usaha e-Dabu',
+          companyName: u.company_name,
+          companyProvinsi: u.company_provinsi,
+          companySektor: u.company_sektor,
+          phone: u.phone,
+        };
+        saveSession(authUser, res.data.access_token);
+        return { success: true, user: authUser };
+      }
+      return { success: false, message: 'Format response tidak valid dari server' };
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || err?.message || 'Gagal registrasi akun Badan Usaha.';
+      return { success: false, message: msg };
+    }
+  }
+
   function logout() {
     currentUser.value = null;
     isAuthenticated.value = false;
@@ -103,6 +143,7 @@ export const useAuthStore = defineStore('auth', () => {
     companyId,
     demoAccounts,
     login,
+    register,
     fetchDemoAccounts,
     logout,
   };

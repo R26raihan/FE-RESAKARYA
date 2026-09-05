@@ -253,6 +253,18 @@ async function handleLogin() {
               </button>
             </div>
           </div>
+
+          <!-- Registration Link -->
+          <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+            <span class="text-gray-500">Belum mendaftarkan Badan Usaha?</span>
+            <router-link
+              to="/register"
+              class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-[11px] transition-colors inline-flex items-center gap-1"
+            >
+              <span>+ Daftar Akun Baru</span>
+              <ArrowRight class="w-3 h-3" />
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
