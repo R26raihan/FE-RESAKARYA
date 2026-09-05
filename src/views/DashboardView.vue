@@ -52,20 +52,10 @@ function formatMilliar(val?: number) {
   return formatRupiah(val);
 }
 
-// Hitung tinggi bar chart wilayah secara dinamis dari data real
+// Bar chart wilayah — dinamis dari API. Kosong = API belum tersedia
 const wilayahBarData = computed(() => {
   const data = store.dashboardWilayah;
-  if (!data || data.length === 0) {
-    return [
-      { label: 'Jawa', height: 35 },
-      { label: 'Sum', height: 65 },
-      { label: 'Bali', height: 40 },
-      { label: 'Kal', height: 85 },
-      { label: 'Sul', height: 50 },
-      { label: 'Mal', height: 90 },
-      { label: 'Pap', height: 75 },
-    ];
-  }
+  if (!data || data.length === 0) return [];
   const maxRatio = Math.max(...data.map(d => d.anomaly_ratio_pct));
   return data.map(d => ({
     label: d.wilayah.substring(0, 3),
@@ -92,8 +82,8 @@ const companyIcons = [
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <StatCard
         title="RERATA UPAH NORMAL"
-        :value="formatRupiah(store.dashboardKpis.avg_wage_normal)"
-        :trend="'+' + store.dashboardKpis.anomaly_rate_pct.toFixed(1) + '% anomali'"
+        :value="store.dashboardKpis ? formatRupiah(store.dashboardKpis.avg_wage_normal) : '—'"
+        :trend="store.dashboardKpis ? store.dashboardKpis.anomaly_rate_pct.toFixed(1) + '% anomali' : 'API belum tersedia'"
         :trend-positive="false"
         subtitle="Benchmark BPS & Pasar"
       >
@@ -102,8 +92,8 @@ const companyIcons = [
 
       <StatCard
         title="TOTAL BADAN USAHA"
-        :value="store.dashboardKpis.total_companies.toLocaleString('id-ID')"
-        trend="+5%"
+        :value="store.dashboardKpis ? store.dashboardKpis.total_companies.toLocaleString('id-ID') : '—'"
+        :trend="store.dashboardKpis ? '+5%' : 'API belum tersedia'"
         :trend-positive="true"
         subtitle="Entitas Terdaftar e-Dabu"
       >
@@ -112,8 +102,8 @@ const companyIcons = [
 
       <StatCard
         title="BADAN USAHA ANOMALI"
-        :value="store.dashboardKpis.total_anomalies.toLocaleString('id-ID')"
-        :trend="store.dashboardKpis.anomaly_rate_pct.toFixed(1) + '% populasi'"
+        :value="store.dashboardKpis ? store.dashboardKpis.total_anomalies.toLocaleString('id-ID') : '—'"
+        :trend="store.dashboardKpis ? store.dashboardKpis.anomaly_rate_pct.toFixed(1) + '% populasi' : 'API belum tersedia'"
         :trend-positive="false"
         subtitle="Prioritas Triase Wasrik"
       >
@@ -122,7 +112,7 @@ const companyIcons = [
 
       <StatCard
         title="DEFISIT TENAGA KERJA"
-        :value="store.dashboardKpis.total_headcount_deficit.toLocaleString('id-ID')"
+        :value="store.dashboardKpis ? store.dashboardKpis.total_headcount_deficit.toLocaleString('id-ID') : '—'"
         trend="+8%"
         :trend-positive="false"
         subtitle="Peserta Belum Didaftarkan"
@@ -201,8 +191,16 @@ const companyIcons = [
         <!-- Top Dark Navy Card with Glowing White Bars -->
         <div class="bg-[#1A1F37] rounded-2xl p-5 mb-4 relative overflow-hidden shadow-inner">
           <div class="h-44 flex items-end justify-between gap-2 px-2 pt-4 pb-2 border-b border-white/10">
-            <!-- Bar items — diisi dari data real API /dashboard/wilayah-distribution -->
+            <!-- Empty state jika API /dashboard/wilayah-distribution belum tersedia -->
+            <div v-if="wilayahBarData.length === 0" class="w-full h-full flex flex-col items-center justify-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                <Activity class="w-4 h-4 text-gray-500" />
+              </div>
+              <p class="text-[10px] text-gray-500 text-center">Data wilayah belum tersedia<br/><span class="text-[9px] opacity-60">GET /dashboard/wilayah-distribution</span></p>
+            </div>
+            <!-- Bar items — diisi dari data real API -->
             <div
+              v-else
               v-for="bar in wilayahBarData"
               :key="bar.label"
               class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end"
@@ -225,6 +223,15 @@ const companyIcons = [
           </p>
 
           <div class="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-gray-100 text-center">
+            <!-- Empty state jika /dashboard/compliance-stats belum tersedia -->
+            <template v-if="!store.dashboardComplianceStats">
+              <div v-for="label in ['Flat UMP', 'Entropy', 'Defisit', 'Target']" :key="label">
+                <p class="text-[11px] font-bold text-gray-400 mb-1">{{ label }}</p>
+                <p class="text-sm font-bold text-gray-300">—</p>
+                <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5"></div>
+              </div>
+            </template>
+            <template v-else>
             <div>
               <div class="flex items-center justify-center gap-1 text-[11px] font-bold text-gray-500 mb-1">
                 <div class="w-4 h-4 rounded bg-teal-500 flex items-center justify-center text-white">
@@ -233,10 +240,10 @@ const companyIcons = [
                 <span>Flat UMP</span>
               </div>
               <p class="text-sm font-bold text-gray-800">
-                {{ store.dashboardComplianceStats?.flat_ump_extreme_count ?? 245 }} BU
+                {{ store.dashboardComplianceStats.flat_ump_extreme_count }} BU
               </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
-                <div class="bg-teal-500 h-full rounded-full" :style="{ width: (store.dashboardComplianceStats?.flat_ump_extreme_pct ?? 80) + '%' }"></div>
+                <div class="bg-teal-500 h-full rounded-full" :style="{ width: store.dashboardComplianceStats.flat_ump_extreme_pct + '%' }"></div>
               </div>
             </div>
 
@@ -248,10 +255,10 @@ const companyIcons = [
                 <span>Entropy</span>
               </div>
               <p class="text-sm font-bold text-gray-800">
-                {{ store.dashboardComplianceStats?.avg_entropy_anomali.toFixed(3) ?? '0.165' }}
+                {{ store.dashboardComplianceStats.avg_entropy_anomali.toFixed(3) }}
               </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
-                <div class="bg-teal-500 h-full rounded-full" :style="{ width: ((store.dashboardComplianceStats?.avg_entropy_anomali ?? 0.165) * 100) + '%' }"></div>
+                <div class="bg-teal-500 h-full rounded-full" :style="{ width: (store.dashboardComplianceStats.avg_entropy_anomali * 100) + '%' }"></div>
               </div>
             </div>
 
@@ -263,7 +270,7 @@ const companyIcons = [
                 <span>Defisit</span>
               </div>
               <p class="text-sm font-bold text-gray-800">
-                {{ ((store.dashboardComplianceStats?.total_headcount_deficit ?? 14850) / 1000).toFixed(1) }}k
+                {{ (store.dashboardComplianceStats.total_headcount_deficit / 1000).toFixed(1) }}k
               </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
                 <div class="bg-teal-500 h-full rounded-full w-[75%]"></div>
@@ -278,12 +285,13 @@ const companyIcons = [
                 <span>Target</span>
               </div>
               <p class="text-sm font-bold text-gray-800">
-                {{ store.dashboardComplianceStats?.target_audit_monthly ?? 300 }} BU
+                {{ store.dashboardComplianceStats.target_audit_monthly }} BU
               </p>
               <div class="w-full bg-gray-100 h-1 rounded-full mt-1.5 overflow-hidden">
                 <div class="bg-teal-500 h-full rounded-full w-[90%]"></div>
               </div>
             </div>
+            </template>
           </div>
         </div>
       </div>
@@ -382,7 +390,17 @@ const companyIcons = [
             </RouterLink>
           </div>
 
-          <div class="overflow-x-auto">
+          <!-- Antrean triage — empty state jika companies kosong -->
+          <div v-if="store.companies.length === 0" class="py-10 flex flex-col items-center gap-3 text-center">
+            <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+              <ShieldAlert class="w-5 h-5 text-gray-400" />
+            </div>
+            <div>
+              <p class="text-xs font-bold text-gray-500">Data belum tersedia</p>
+              <p class="text-[10px] text-gray-400 mt-0.5">GET /companies tidak merespons</p>
+            </div>
+          </div>
+          <div v-else class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead class="text-[10px] uppercase font-bold text-gray-400 border-b border-gray-100">
                 <tr>
@@ -395,6 +413,7 @@ const companyIcons = [
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
+
                 <tr
                   v-for="(c, idx) in store.companies.slice(0, 6)"
                   :key="c.company_id"
