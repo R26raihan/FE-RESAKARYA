@@ -192,6 +192,43 @@ function handleFileDrop(event: DragEvent) {
   processFile(file);
 }
 
+function cleanCurrency(val: any, fallback: number = 0): number {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === 'number') return isNaN(val) ? fallback : val;
+  let s = String(val).trim();
+  if (!s) return fallback;
+
+  // Hapus prefix mata uang (Rp, rp, IDR, $, dll.)
+  s = s.replace(/^(rp\.?|idr|\$)\s*/i, '').trim();
+
+  // Penanganan pemisah ribuan & desimal
+  if (s.includes('.') && s.includes(',')) {
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+      // 15.000.000,00 -> 15000000.00
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else {
+      // 15,000,000.00 -> 15000000.00
+      s = s.replace(/,/g, '');
+    }
+  } else if (s.includes('.')) {
+    const parts = s.split('.');
+    if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
+      s = s.replace(/\./g, '');
+    }
+  } else if (s.includes(',')) {
+    const parts = s.split(',');
+    if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
+      s = s.replace(/,/g, '');
+    } else {
+      s = s.replace(',', '.');
+    }
+  }
+
+  const cleaned = s.replace(/[^0-9.]/g, '');
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? fallback : num;
+}
+
 function processFile(file: File) {
   uploadedFileName.value = file.name;
   isParsing.value = true;
@@ -216,12 +253,14 @@ function processFile(file: File) {
       const ump = currentUmp.value;
 
       rows.forEach((row, index) => {
-        if (!row || row.length === 0 || !row[1]) return;
+        if (!row || row.length === 0 || (!row[1] && !row[2])) return;
         const nik = String(row[1] || `31710000${index + 1}`).trim();
         const nama = String(row[2] || `Karyawan ${index + 1}`).trim();
         const jabatan = String(row[3] || 'Staf').trim();
-        const gajiPokok = Number(row[4]) || ump;
-        const tunjangan = Number(row[5]) || 0;
+        
+        // Membersihkan format string Rp / pemisah ribuan
+        const gajiPokok = cleanCurrency(row[4], ump);
+        const tunjangan = cleanCurrency(row[5], 0);
         const total = gajiPokok + tunjangan;
 
         let status: 'NORMAL' | 'FLAT_UMP' | 'BELOW_UMP' = 'NORMAL';
