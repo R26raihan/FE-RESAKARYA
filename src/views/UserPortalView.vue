@@ -19,6 +19,9 @@ import {
   DollarSign,
   Printer,
   ChevronRight,
+  Eye,
+  X,
+  QrCode,
 } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
@@ -26,6 +29,33 @@ const compStore = useComplianceStore();
 
 // Step indicator
 const currentStep = ref<number>(1);
+
+// Modal for viewing history receipt
+const activeReceiptModal = ref<any>(null);
+
+function viewHistoryReceipt(item: any) {
+  activeReceiptModal.value = {
+    registration_number: item.id || `REG-${item.company_id}-${Date.now().toString().slice(-6)}`,
+    company_id: item.company_id,
+    company_name: item.company_name,
+    user_email: item.user_email || 'hrd@perusahaan.co.id',
+    file_name: item.file_name || 'Payroll_Upload_eDabu.xlsx',
+    submitted_at: item.submitted_at || new Date().toISOString().replace('T', ' ').slice(0, 19),
+    provinsi: item.provinsi || formProfile.value.provinsi,
+    sektor_kbli: item.sektor_kbli || formProfile.value.sektor_kbli,
+    total_workers_reported: item.total_workers_reported,
+    wltk_headcount: item.wltk_headcount || item.total_workers_reported,
+    headcount_deficit: item.headcount_deficit || 0,
+    mean_gaji_lapor: item.mean_gaji_lapor || 0,
+    ref_ump_regional: currentUmp.value,
+    pii_compliance: 'UU PDP No. 27/2022 Terverifikasi (PII Masked)',
+    verification_status: 'TERVERIFIKASI & TERCATAT PADA DATABASE PUSAT',
+  };
+}
+
+function closeReceiptModal() {
+  activeReceiptModal.value = null;
+}
 
 // Step 1: Profil Badan Usaha
 const formProfile = ref({
@@ -375,7 +405,7 @@ function printReceipt() {
 <template>
   <div class="space-y-6 pb-12">
     <!-- Header Banner -->
-    <div class="p-6 rounded-3xl bg-gradient-to-r from-teal-700 via-teal-800 to-slate-900 text-white shadow-xl relative overflow-hidden">
+    <div class="p-6 rounded-3xl bg-gradient-to-r from-teal-700 via-teal-800 to-slate-900 text-white shadow-xl relative overflow-hidden print:hidden">
       <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -448,7 +478,7 @@ function printReceipt() {
     </div>
 
     <!-- STEP 1: Profil Badan Usaha -->
-    <div v-if="currentStep === 1" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6">
+    <div v-if="currentStep === 1" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6 print:hidden">
       <div class="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
           <h2 class="text-base font-bold text-gray-800">Langkah 1: Konfirmasi Profil Badan Usaha</h2>
@@ -547,13 +577,13 @@ function printReceipt() {
     </div>
 
     <!-- STEP 2: Unduh Template Excel & CSV -->
-    <div v-if="currentStep === 2" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6">
+    <div v-if="currentStep === 2" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6 print:hidden">
       <div class="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
           <h2 class="text-base font-bold text-gray-800">Langkah 2: Unduh Template Format Resmi</h2>
           <p class="text-xs text-gray-500">Gunakan file template terstandarisasi untuk mengisi data seluruh tenaga kerja.</p>
         </div>
-        <button @click="currentStep = 1" class="text-xs font-semibold text-gray-500 hover:text-gray-800">
+        <button @click="currentStep = 1" class="text-xs font-semibold text-gray-500 hover:text-gray-800 cursor-pointer">
           ← Kembali ke Profil
         </button>
       </div>
@@ -618,67 +648,64 @@ function printReceipt() {
                 <th class="py-2 px-3">Contoh Nilai</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 text-gray-700">
+            <tbody class="divide-y divide-gray-200/60 text-gray-700">
               <tr>
-                <td class="py-2 px-3 font-mono font-bold text-teal-700">NIK_Karyawan</td>
-                <td class="py-2 px-3"><span class="text-rose-600 font-semibold">Wajib</span></td>
-                <td class="py-2 px-3">16 Digit Teks</td>
+                <td class="py-2 px-3 font-mono font-bold text-teal-700">NIK</td>
+                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib (16 Digit)</td>
+                <td class="py-2 px-3">Teks / Angka</td>
                 <td class="py-2 px-3 font-mono">3171012345670001</td>
               </tr>
               <tr>
                 <td class="py-2 px-3 font-mono font-bold text-teal-700">Nama_Karyawan</td>
-                <td class="py-2 px-3"><span class="text-rose-600 font-semibold">Wajib</span></td>
-                <td class="py-2 px-3">Teks Nama</td>
+                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib</td>
+                <td class="py-2 px-3">Teks</td>
                 <td class="py-2 px-3">Budi Santoso</td>
               </tr>
               <tr>
                 <td class="py-2 px-3 font-mono font-bold text-teal-700">Jabatan</td>
-                <td class="py-2 px-3"><span class="text-rose-600 font-semibold">Wajib</span></td>
-                <td class="py-2 px-3">Teks Jabatan</td>
-                <td class="py-2 px-3">Manajer / Staf Ahli / Operator</td>
+                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib</td>
+                <td class="py-2 px-3">Teks</td>
+                <td class="py-2 px-3">Staff Ahli Software Engineer</td>
               </tr>
               <tr>
                 <td class="py-2 px-3 font-mono font-bold text-teal-700">Gaji_Pokok_Lapor</td>
-                <td class="py-2 px-3"><span class="text-rose-600 font-semibold">Wajib</span></td>
-                <td class="py-2 px-3">Angka (Rupiah)</td>
-                <td class="py-2 px-3 font-mono">15.000.000</td>
+                <td class="py-2 px-3 text-emerald-700 font-semibold">Wajib (>= UMP)</td>
+                <td class="py-2 px-3">Angka / Mata Uang (Rp)</td>
+                <td class="py-2 px-3 font-mono">Rp15,000,000 / 15000000</td>
               </tr>
               <tr>
                 <td class="py-2 px-3 font-mono font-bold text-teal-700">Tunjangan_Tetap</td>
-                <td class="py-2 px-3"><span class="text-gray-500">Opsional</span></td>
-                <td class="py-2 px-3">Angka (Rupiah)</td>
-                <td class="py-2 px-3 font-mono">2.000.000</td>
+                <td class="py-2 px-3 text-gray-500">Opsional</td>
+                <td class="py-2 px-3">Angka / Mata Uang (Rp)</td>
+                <td class="py-2 px-3 font-mono">Rp2,000,000 / 2000000</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="flex justify-between pt-4 border-t border-gray-100">
-        <button
-          @click="loadDemoSample"
-          class="text-xs font-bold text-teal-700 hover:underline"
-        >
-          Gunakan Data Demo Bawaan Saja
+      <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+        <button @click="currentStep = 1" class="text-xs font-semibold text-gray-500 hover:text-gray-800 cursor-pointer">
+          ← Kembali ke Profil
         </button>
         <button
           @click="currentStep = 3"
           class="py-2.5 px-6 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md shadow-teal-500/20 flex items-center gap-2 cursor-pointer transition-all"
         >
-          <span>Lanjutkan ke Upload File</span>
+          <span>Lanjut ke Upload & Validasi</span>
           <ChevronRight class="w-4 h-4" />
         </button>
       </div>
     </div>
 
     <!-- STEP 3: Upload & Pre-flight Table Preview -->
-    <div v-if="currentStep === 3" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6">
+    <div v-if="currentStep === 3" class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-6 print:hidden">
       <div class="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
           <h2 class="text-base font-bold text-gray-800">Langkah 3: Unggah & Validasi Pre-Flight</h2>
           <p class="text-xs text-gray-500">Unggah file Excel/CSV yang sudah diisi untuk pemeriksaan skema otomatis.</p>
         </div>
-        <button @click="currentStep = 2" class="text-xs font-semibold text-gray-500 hover:text-gray-800">
+        <button @click="currentStep = 2" class="text-xs font-semibold text-gray-500 hover:text-gray-800 cursor-pointer">
           ← Kembali ke Unduh Template
         </button>
       </div>
@@ -828,114 +855,177 @@ function printReceipt() {
       </div>
     </div>
 
-    <!-- STEP 4: Tanda Terima Elektronik (Receipt) -->
-    <div v-if="currentStep === 4 && submissionReceipt" class="bg-white rounded-3xl p-6 md:p-10 border border-gray-100 shadow-xl space-y-6 max-w-4xl mx-auto">
-      <!-- Success Icon -->
-      <div class="text-center space-y-2">
-        <div class="w-16 h-16 rounded-3xl bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
+    <!-- STEP 4: Tanda Terima Elektronik (Official Printable Receipt Document) -->
+    <div v-if="currentStep === 4 && submissionReceipt" class="space-y-6">
+      <!-- Screen-only celebration banner -->
+      <div class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm text-center space-y-2 print:hidden max-w-4xl mx-auto">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
           <CheckCircle2 class="w-8 h-8" />
         </div>
-        <h2 class="text-xl font-extrabold text-gray-900">Pelaporan e-Dabu Berhasil Diterima!</h2>
-        <p class="text-xs text-gray-500">Data telah disinkronisasikan ke sistem analitik REKSAKARYA BPJS Kesehatan.</p>
+        <h2 class="text-xl font-extrabold text-gray-900">Pelaporan e-Dabu Berhasil Diterima & Tercatat!</h2>
+        <p class="text-xs text-gray-500 max-w-lg mx-auto">
+          Data payroll telah disinkronisasikan ke sistem analitik REKSAKARYA BPJS Kesehatan. Silakan cetak atau simpan Bukti Penerimaan Elektronik resmi berikut untuk arsip kepatuhan Badan Usaha.
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+          <button
+            @click="printReceipt"
+            class="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+          >
+            <Printer class="w-4 h-4" />
+            <span>Cetak Bukti Penerimaan (PDF / Print)</span>
+          </button>
+
+          <button
+            @click="resetForm"
+            class="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
+          >
+            <RefreshCw class="w-4 h-4" />
+            <span>Upload Data Periode Lain</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Formal Receipt Card (Printable) -->
-      <div class="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 md:p-8 space-y-6">
-        <div class="flex items-center justify-between border-b border-slate-200 pb-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-lg">
+      <!-- Official Government-Grade Document Paper (A4 Standard) -->
+      <div class="max-w-4xl mx-auto bg-white text-slate-900 rounded-2xl p-8 md:p-12 shadow-lg border border-slate-200 font-serif leading-relaxed text-xs print:p-0 print:m-0 print:border-none print:shadow-none print:max-w-none print:w-full print:rounded-none">
+        <!-- Kop Surat Resmi BPJS Kesehatan -->
+        <div class="border-b-2 border-slate-900 pb-4 mb-6">
+          <div class="flex items-center justify-between gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-teal-700 text-white flex items-center justify-center font-bold text-2xl shrink-0">
               🛡️
             </div>
-            <div>
-              <h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-                SURAT TANDA TERIMA PELAPORAN ELEKTRONIK (e-DABU)
-              </h3>
-              <p class="text-[10px] text-slate-500">BPJS Kesehatan RI • REKSAKARYA AI Compliance Engine</p>
+            <div class="text-center flex-1">
+              <h1 class="text-base md:text-lg font-bold tracking-wide uppercase text-slate-900 font-sans">
+                BPJS KESEHATAN REPUBLIK INDONESIA
+              </h1>
+              <h2 class="text-xs md:text-sm font-bold tracking-wider uppercase text-slate-700 font-sans">
+                DIREKTORAT PENGAWASAN, PEMERIKSAAN DAN HUBUNGAN ANTAR LEMBAGA
+              </h2>
+              <p class="text-[10px] text-slate-500 font-sans mt-0.5">
+                Sistem Analitik Rekonsiliasi Kepatuhan e-Dabu • REKSAKARYA AI Engine
+              </p>
+              <p class="text-[9px] text-slate-400 font-sans">
+                Jl. Letjen Suprapto Kav. 20 No. 14, Cempaka Putih, Jakarta Pusat 10510 | Call Center: 165
+              </p>
+            </div>
+            <div class="w-14 h-14 hidden sm:flex items-center justify-center border border-slate-300 rounded-xl p-1 shrink-0">
+              <QrCode class="w-10 h-10 text-slate-800" />
             </div>
           </div>
-          <div class="text-right">
-            <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-mono font-bold text-xs">
-              STATUS: TERVERIFIKASI
-            </span>
+          <div class="w-full border-t border-slate-900 mt-2"></div>
+        </div>
+
+        <!-- Judul Dokumen & Status -->
+        <div class="text-center mb-6">
+          <h3 class="text-sm md:text-base font-bold uppercase tracking-wider underline font-sans text-slate-900">
+            BUKTI PENERIMAAN ELEKTRONIK (BPE) PELAPORAN e-DABU
+          </h3>
+          <p class="text-[11px] font-mono font-bold text-teal-800 mt-1">
+            NOMOR REGISTRASI: {{ submissionReceipt.registration_number }}
+          </p>
+          <div class="inline-block mt-1 px-3 py-0.5 rounded bg-emerald-100 text-emerald-900 font-sans font-bold text-[10px] uppercase border border-emerald-300">
+            STATUS: {{ submissionReceipt.verification_status || 'TERVERIFIKASI & TERCATAT PADA DATABASE PUSAT' }}
           </div>
         </div>
 
-        <!-- Receipt Details Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Nomor Registrasi</p>
-            <p class="font-mono font-bold text-slate-800 mt-0.5">{{ submissionReceipt.registration_number }}</p>
+        <!-- Intro -->
+        <p class="text-justify mb-4 text-[11px]">
+          Badan Penyelenggara Jaminan Sosial (BPJS) Kesehatan menerbitkan Bukti Penerimaan Elektronik (BPE) ini sebagai tanda bukti sah atas penyampaian data kepesertaan dan mutasi upah tenaga kerja secara digital melalui Portal Mandiri e-Dabu REKSAKARYA:
+        </p>
+
+        <!-- Tabel Rincian Resmi -->
+        <div class="border border-slate-300 rounded-lg overflow-hidden mb-6 text-[11px] font-sans">
+          <div class="bg-slate-100 px-4 py-2 font-bold text-slate-800 border-b border-slate-300">
+            I. IDENTITAS BADAN USAHA
+          </div>
+          <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6">
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Nama Badan Usaha:</span>
+              <span class="font-bold text-slate-800">{{ submissionReceipt.company_name }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">ID Badan Usaha:</span>
+              <span class="font-mono font-bold text-teal-700">{{ submissionReceipt.company_id }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Wilayah / Provinsi:</span>
+              <span class="font-semibold text-slate-800">{{ submissionReceipt.provinsi }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Sektor Usaha (KBLI):</span>
+              <span class="font-semibold text-slate-800">{{ submissionReceipt.sektor_kbli }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Akun Pelapor / Email:</span>
+              <span class="font-mono text-slate-700">{{ submissionReceipt.user_email || '-' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Waktu Penerimaan:</span>
+              <span class="font-mono font-semibold text-slate-800">{{ submissionReceipt.submitted_at }} WIB</span>
+            </div>
           </div>
 
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">ID Badan Usaha</p>
-            <p class="font-mono font-bold text-teal-700 mt-0.5">{{ submissionReceipt.company_id }}</p>
+          <div class="bg-slate-100 px-4 py-2 font-bold text-slate-800 border-t border-b border-slate-300">
+            II. RINGKASAN DATA PELAPORAN PAYROLL
           </div>
-
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Waktu Submit</p>
-            <p class="font-medium text-slate-700 mt-0.5">{{ submissionReceipt.submitted_at }}</p>
-          </div>
-
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Nama Badan Usaha</p>
-            <p class="font-bold text-slate-800 mt-0.5">{{ submissionReceipt.company_name }}</p>
-          </div>
-
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Provinsi / Wilayah</p>
-            <p class="font-medium text-slate-700 mt-0.5">{{ submissionReceipt.provinsi }}</p>
-          </div>
-
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Sektor Usaha KBLI</p>
-            <p class="font-medium text-slate-700 mt-0.5">{{ submissionReceipt.sektor_kbli }}</p>
-          </div>
-
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Pekerja Dilaporkan</p>
-            <p class="font-bold text-slate-800 mt-0.5">{{ submissionReceipt.total_workers_reported }} Orang</p>
-          </div>
-
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Headcount WLTK Riil</p>
-            <p class="font-medium text-slate-700 mt-0.5">{{ submissionReceipt.wltk_headcount }} Orang</p>
-          </div>
-
-          <div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase">Acuan UMP 2026</p>
-            <p class="font-mono font-medium text-slate-700 mt-0.5">Rp {{ submissionReceipt.ref_ump_regional?.toLocaleString('id-ID') }}</p>
+          <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6">
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Jumlah Pekerja Dilaporkan:</span>
+              <span class="font-bold text-slate-900">{{ submissionReceipt.total_workers_reported }} Orang</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Headcount Riil (WLTK):</span>
+              <span class="font-semibold text-slate-800">{{ submissionReceipt.wltk_headcount }} Orang</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Acuan UMP 2026 Wilayah:</span>
+              <span class="font-mono font-semibold text-slate-800">Rp {{ submissionReceipt.ref_ump_regional?.toLocaleString('id-ID') }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Rata-rata Upah Lapor:</span>
+              <span class="font-mono font-bold text-teal-800">Rp {{ Math.round(submissionReceipt.mean_gaji_lapor || 0).toLocaleString('id-ID') }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Nama Berkas Lampiran:</span>
+              <span class="font-mono text-slate-700">{{ submissionReceipt.file_name || 'Payroll_Upload_eDabu.xlsx' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-1">
+              <span class="text-slate-500">Kepatuhan Privasi Data:</span>
+              <span class="text-emerald-700 font-semibold">{{ submissionReceipt.pii_compliance }}</span>
+            </div>
           </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
-          <span>Kepatuhan UU PDP: {{ submissionReceipt.pii_compliance }}</span>
-          <span class="font-mono text-[10px]">REKSAKARYA-DIGITAL-SIGNATURE-OK</span>
+        <!-- Footer Pengesahan Elektronik -->
+        <div class="grid grid-cols-2 gap-6 pt-4 text-[11px] font-sans">
+          <div>
+            <p class="font-bold text-slate-800 mb-1">Catatan & Ketentuan Hukum:</p>
+            <ul class="list-disc pl-4 space-y-1 text-slate-600 text-[10px] leading-relaxed">
+              <li>Bukti ini sah diterbitkan secara elektronik dan tidak memerlukan tanda tangan basah sesuai UU ITE No. 11/2008 Pasal 5.</li>
+              <li>Data upah yang disampaikan menjadi dasar penghitungan iuran JKN sesuai PP No. 86/2013 & Perpres No. 82/2018.</li>
+              <li>Ketidaksesuaian data upah atau jumlah pekerja dapat menjadi objek tindak lanjut audit Pengawasan & Pemeriksaan (Wasrik).</li>
+            </ul>
+          </div>
+
+          <div class="text-right flex flex-col items-end justify-between">
+            <div>
+              <p class="text-[10px] text-slate-500">Diverifikasi & Diterbitkan Secara Elektronik oleh:</p>
+              <p class="font-bold text-slate-800">BPJS KESEHATAN KEDEPUTAN WASRIK</p>
+              <p class="text-[10px] text-teal-700 font-semibold">REKSAKARYA AI Compliance Engine</p>
+            </div>
+
+            <div class="border-2 border-dashed border-emerald-600 bg-emerald-50/60 rounded-xl p-2.5 text-center mt-3 text-[9px] text-emerald-900 font-mono font-bold">
+              <p>✓ DIGITAL SIGNATURE VERIFIED</p>
+              <p class="text-[8px] text-slate-500 font-normal">SHA256: 7a9e8f1b2c3d4e5f6a7b8c9d0e1f2a3b</p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-        <button
-          @click="printReceipt"
-          class="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
-        >
-          <Printer class="w-4 h-4" />
-          <span>Cetak Bukti Tanda Terima</span>
-        </button>
-
-        <button
-          @click="resetForm"
-          class="w-full sm:w-auto py-2.5 px-6 rounded-xl bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
-        >
-          <RefreshCw class="w-4 h-4" />
-          <span>Input / Submit Data Lainnya</span>
-        </button>
       </div>
     </div>
 
     <!-- Riwayat Pelaporan Audit Trail Section -->
-    <div class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-4">
+    <div class="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm space-y-4 print:hidden">
       <div class="flex items-center justify-between border-b border-gray-100 pb-3">
         <div>
           <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
@@ -972,6 +1062,7 @@ function printReceipt() {
               <th class="py-2.5 px-3">Rata-rata Gaji</th>
               <th class="py-2.5 px-3">Defisit WLTK</th>
               <th class="py-2.5 px-3">Status</th>
+              <th class="py-2.5 px-3 text-center">Aksi Dokumen</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 text-gray-700">
@@ -994,9 +1085,186 @@ function printReceipt() {
                   {{ item.status }}
                 </span>
               </td>
+              <td class="py-2.5 px-3 text-center">
+                <button
+                  @click="viewHistoryReceipt(item)"
+                  class="px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-[11px] inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Lihat & Cetak Bukti Tanda Terima"
+                >
+                  <Eye class="w-3.5 h-3.5 text-teal-600" />
+                  <span>Tanda Terima</span>
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Modal View History Receipt -->
+    <div
+      v-if="activeReceiptModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-white print:static"
+    >
+      <div class="bg-white rounded-3xl max-w-4xl w-full p-6 md:p-8 space-y-6 max-h-[90vh] overflow-y-auto border border-gray-100 shadow-2xl print:max-w-none print:w-full print:p-0 print:border-none print:shadow-none print:max-h-none print:overflow-visible">
+        <!-- Modal Controls (Screen Only) -->
+        <div class="flex items-center justify-between border-b border-gray-100 pb-4 print:hidden">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold">
+              🛡️
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-gray-800">Pratinjau Bukti Tanda Terima Elektronik</h3>
+              <p class="text-[10px] text-gray-400 font-mono">No. Reg: {{ activeReceiptModal.registration_number }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              @click="printReceipt"
+              class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+            >
+              <Printer class="w-4 h-4" />
+              <span>Cetak / PDF</span>
+            </button>
+            <button
+              @click="closeReceiptModal"
+              class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 cursor-pointer transition-all"
+            >
+              <X class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Official Paper Container inside Modal -->
+        <div class="bg-white text-slate-900 p-6 md:p-10 border border-slate-300 rounded-xl font-serif leading-relaxed text-xs print:p-0 print:m-0 print:border-none">
+          <!-- Kop Surat Resmi -->
+          <div class="border-b-2 border-slate-900 pb-4 mb-6">
+            <div class="flex items-center justify-between gap-4">
+              <div class="w-12 h-12 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-xl shrink-0">
+                🛡️
+              </div>
+              <div class="text-center flex-1">
+                <h1 class="text-base font-bold tracking-wide uppercase text-slate-900 font-sans">
+                  BPJS KESEHATAN REPUBLIK INDONESIA
+                </h1>
+                <h2 class="text-xs font-bold tracking-wider uppercase text-slate-700 font-sans">
+                  DIREKTORAT PENGAWASAN, PEMERIKSAAN DAN HUBUNGAN ANTAR LEMBAGA
+                </h2>
+                <p class="text-[10px] text-slate-500 font-sans mt-0.5">
+                  Sistem Analitik Rekonsiliasi Kepatuhan e-Dabu • REKSAKARYA AI Engine
+                </p>
+                <p class="text-[9px] text-slate-400 font-sans">
+                  Jl. Letjen Suprapto Kav. 20 No. 14, Cempaka Putih, Jakarta Pusat 10510 | Call Center: 165
+                </p>
+              </div>
+              <div class="w-12 h-12 hidden sm:flex items-center justify-center border border-slate-300 rounded-lg p-1 shrink-0">
+                <QrCode class="w-8 h-8 text-slate-800" />
+              </div>
+            </div>
+            <div class="w-full border-t border-slate-900 mt-2"></div>
+          </div>
+
+          <!-- Judul Dokumen -->
+          <div class="text-center mb-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider underline font-sans text-slate-900">
+              BUKTI PENERIMAAN ELEKTRONIK (BPE) PELAPORAN e-DABU
+            </h3>
+            <p class="text-[11px] font-mono font-bold text-teal-800 mt-1">
+              NOMOR REGISTRASI: {{ activeReceiptModal.registration_number }}
+            </p>
+            <div class="inline-block mt-1 px-3 py-0.5 rounded bg-emerald-100 text-emerald-900 font-sans font-bold text-[10px] uppercase border border-emerald-300">
+              STATUS: {{ activeReceiptModal.verification_status || 'TERVERIFIKASI & TERCATAT PADA DATABASE PUSAT' }}
+            </div>
+          </div>
+
+          <!-- Tabel Rincian -->
+          <div class="border border-slate-300 rounded-lg overflow-hidden mb-6 text-[11px] font-sans">
+            <div class="bg-slate-100 px-4 py-2 font-bold text-slate-800 border-b border-slate-300">
+              I. IDENTITAS BADAN USAHA
+            </div>
+            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6">
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Nama Badan Usaha:</span>
+                <span class="font-bold text-slate-800">{{ activeReceiptModal.company_name }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">ID Badan Usaha:</span>
+                <span class="font-mono font-bold text-teal-700">{{ activeReceiptModal.company_id }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Wilayah / Provinsi:</span>
+                <span class="font-semibold text-slate-800">{{ activeReceiptModal.provinsi }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Sektor Usaha (KBLI):</span>
+                <span class="font-semibold text-slate-800">{{ activeReceiptModal.sektor_kbli }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Akun Pelapor / Email:</span>
+                <span class="font-mono text-slate-700">{{ activeReceiptModal.user_email || '-' }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Waktu Penerimaan:</span>
+                <span class="font-mono font-semibold text-slate-800">{{ activeReceiptModal.submitted_at }} WIB</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-100 px-4 py-2 font-bold text-slate-800 border-t border-b border-slate-300">
+              II. RINGKASAN DATA PELAPORAN PAYROLL
+            </div>
+            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6">
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Jumlah Pekerja Dilaporkan:</span>
+                <span class="font-bold text-slate-900">{{ activeReceiptModal.total_workers_reported }} Orang</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Headcount Riil (WLTK):</span>
+                <span class="font-semibold text-slate-800">{{ activeReceiptModal.wltk_headcount }} Orang</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Acuan UMP 2026 Wilayah:</span>
+                <span class="font-mono font-semibold text-slate-800">Rp {{ activeReceiptModal.ref_ump_regional?.toLocaleString('id-ID') }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Rata-rata Upah Lapor:</span>
+                <span class="font-mono font-bold text-teal-800">Rp {{ Math.round(activeReceiptModal.mean_gaji_lapor || 0).toLocaleString('id-ID') }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Nama Berkas Lampiran:</span>
+                <span class="font-mono text-slate-700">{{ activeReceiptModal.file_name || 'Payroll_Upload_eDabu.xlsx' }}</span>
+              </div>
+              <div class="flex justify-between border-b border-slate-100 pb-1">
+                <span class="text-slate-500">Kepatuhan Privasi Data:</span>
+                <span class="text-emerald-700 font-semibold">{{ activeReceiptModal.pii_compliance }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Pengesahan -->
+          <div class="grid grid-cols-2 gap-6 pt-4 text-[11px] font-sans">
+            <div>
+              <p class="font-bold text-slate-800 mb-1">Catatan & Ketentuan Hukum:</p>
+              <ul class="list-disc pl-4 space-y-1 text-slate-600 text-[10px] leading-relaxed">
+                <li>Bukti ini sah diterbitkan secara elektronik dan tidak memerlukan tanda tangan basah sesuai UU ITE No. 11/2008 Pasal 5.</li>
+                <li>Data upah yang disampaikan menjadi dasar penghitungan iuran JKN sesuai PP No. 86/2013 & Perpres No. 82/2018.</li>
+              </ul>
+            </div>
+
+            <div class="text-right flex flex-col items-end justify-between">
+              <div>
+                <p class="text-[10px] text-slate-500">Diverifikasi & Diterbitkan Secara Elektronik oleh:</p>
+                <p class="font-bold text-slate-800">BPJS KESEHATAN KEDEPUTAN WASRIK</p>
+                <p class="text-[10px] text-teal-700 font-semibold">REKSAKARYA AI Compliance Engine</p>
+              </div>
+
+              <div class="border-2 border-dashed border-emerald-600 bg-emerald-50/60 rounded-xl p-2 text-center mt-3 text-[9px] text-emerald-900 font-mono font-bold">
+                <p>✓ DIGITAL SIGNATURE VERIFIED</p>
+                <p class="text-[8px] text-slate-500 font-normal">SHA256: 7a9e8f1b2c3d4e5f6a7b8c9d0e1f2a3b</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

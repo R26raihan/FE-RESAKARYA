@@ -15,13 +15,13 @@ const isLoginPage = computed(() => route.name === 'login');
 
   <div v-else class="min-h-screen bg-[#F8F9FA] flex text-gray-700 font-sans antialiased selection:bg-teal-500 selection:text-white">
     <!-- Floating Sidebar -->
-    <Sidebar />
+    <Sidebar class="print:hidden" />
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0 pr-4 pl-1 py-3">
-      <Navbar />
+    <div class="flex-1 flex flex-col min-w-0 pr-4 pl-1 py-3 print:p-0 print:m-0 print:w-full">
+      <Navbar class="print:hidden" />
 
-      <main class="flex-1 px-6 pb-6 overflow-y-auto max-w-[1600px] w-full">
+      <main class="flex-1 px-6 pb-6 overflow-y-auto max-w-[1600px] w-full print:p-0 print:m-0 print:max-w-none print:w-full">
         <RouterView />
       </main>
     </div>
