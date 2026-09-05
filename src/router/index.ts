@@ -4,6 +4,7 @@ import TriageQueueView from '@/views/TriageQueueView.vue';
 import CompanyDetailView from '@/views/CompanyDetailView.vue';
 import RegionalBenchmarkView from '@/views/RegionalBenchmarkView.vue';
 import BapGeneratorView from '@/views/BapGeneratorView.vue';
+import RegulationView from '@/views/RegulationView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,7 +39,18 @@ const router = createRouter({
       name: 'bap-generator',
       component: BapGeneratorView,
     },
+    {
+      path: '/regulation',
+      name: 'regulation',
+      component: RegulationView,
+    },
+    {
+      path: '/methodology',
+      name: 'methodology',
+      component: RegulationView,
+    },
   ],
 });
 
 export default router;
+

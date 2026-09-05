@@ -17,8 +17,9 @@ const pageTitle = computed(() => {
       return 'Benchmark Regional 38 Provinsi';
     case 'bap-generator':
       return 'Auto-BAP Generator';
+    case 'regulation':
     case 'methodology':
-      return 'Metodologi & Regulasi';
+      return 'Landasan Regulasi & SOP Wasrik';
     default:
       return 'Dashboard';
   }

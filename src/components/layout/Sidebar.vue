@@ -23,6 +23,7 @@ const mainNavItems = [
 
 const auditNavItems = [
   { name: 'Auto-BAP Generator', path: '/bap-generator', icon: FileText },
+  { name: 'Panduan & Regulasi', path: '/regulation', icon: HelpCircle },
 ];
 </script>
 
@@ -107,7 +108,7 @@ const auditNavItems = [
       <h3 class="text-xs font-bold leading-tight">Butuh Bantuan Audit?</h3>
       <p class="text-[10px] text-teal-50 mt-1 opacity-90">Panduan regulasi & manual triase kepatuhan Wasrik.</p>
       <RouterLink
-        to="/benchmark"
+        to="/regulation"
         class="mt-3 w-full py-1.5 px-3 bg-white text-teal-800 rounded-xl text-[10px] font-bold text-center block uppercase tracking-wider shadow-sm hover:bg-gray-50 transition-colors"
       >
         Lihat Panduan
