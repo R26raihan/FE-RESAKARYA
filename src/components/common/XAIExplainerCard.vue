@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { marked } from 'marked';
 import { useComplianceStore } from '@/stores/compliance';
 import {
   BrainCircuit,
@@ -16,7 +17,10 @@ import {
   FolderCheck,
   ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  BookOpen,
+  FileCode,
+  Layers
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -26,6 +30,7 @@ const props = defineProps<{
 const store = useComplianceStore();
 const copied = ref(false);
 const showAllRegulations = ref(false);
+const activeViewTab = ref<'formatted' | 'raw'>('formatted');
 
 onMounted(async () => {
   if (props.companyId && (!store.selectedCompanyXAI || store.selectedCompanyXAI.company_id !== props.companyId)) {
@@ -43,6 +48,17 @@ function formatRupiah(val?: number) {
   if (!val || val === 0) return 'Rp 0';
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 }
+
+// Konfigurasi Marked untuk output HTML yang bersih
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
+
+const parsedNarrativeHtml = computed(() => {
+  if (!xaiData.value?.ai_audit_narrative) return '';
+  return marked.parse(xaiData.value.ai_audit_narrative) as string;
+});
 
 async function copyNarrative() {
   if (!xaiData.value?.ai_audit_narrative) return;
@@ -203,26 +219,64 @@ async function copyNarrative() {
         </div>
       </div>
 
-      <!-- 4. GenAI Generated Audit Narrative -->
-      <div class="p-5 rounded-xl bg-slate-50 border border-slate-200">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2 text-slate-800">
-            <FileText class="w-4 h-4 text-teal-600" />
-            <h4 class="text-xs font-black uppercase tracking-wider">
-              Draf Laporan Investigasi AI (Legal-Ready Audit Narrative)
-            </h4>
+      <!-- 4. GenAI Generated Audit Narrative (Formatted Document UI) -->
+      <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-200">
+          <div class="flex items-center gap-2.5 text-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
+              <FileText class="w-4 h-4" />
+            </div>
+            <div>
+              <h4 class="text-xs font-black uppercase tracking-wider text-slate-800">
+                Draf Laporan Investigasi AI (Legal-Ready Audit Narrative)
+              </h4>
+              <p class="text-[10px] text-slate-500">Diformat otomatis siap salin untuk lembar pemeriksaan Wasrik</p>
+            </div>
           </div>
-          <button
-            @click="copyNarrative"
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 shadow-sm transition-all"
-          >
-            <Check v-if="copied" class="w-3.5 h-3.5 text-teal-600" />
-            <Copy v-else class="w-3.5 h-3.5" />
-            {{ copied ? 'Tersalin!' : 'Salin Laporan' }}
-          </button>
+
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <!-- View Switcher Tabs -->
+            <div class="flex items-center bg-slate-200/70 p-0.5 rounded-lg text-[10px] font-bold">
+              <button
+                @click="activeViewTab = 'formatted'"
+                class="px-2.5 py-1 rounded-md transition-all flex items-center gap-1"
+                :class="activeViewTab === 'formatted' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                <BookOpen class="w-3 h-3" /> Rapi
+              </button>
+              <button
+                @click="activeViewTab = 'raw'"
+                class="px-2.5 py-1 rounded-md transition-all flex items-center gap-1"
+                :class="activeViewTab === 'raw' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                <FileCode class="w-3 h-3" /> Teks Baku
+              </button>
+            </div>
+
+            <!-- Copy Button -->
+            <button
+              @click="copyNarrative"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-xs transition-all"
+            >
+              <Check v-if="copied" class="w-3.5 h-3.5 text-teal-600" />
+              <Copy v-else class="w-3.5 h-3.5" />
+              {{ copied ? 'Tersalin!' : 'Salin Laporan' }}
+            </button>
+          </div>
         </div>
 
-        <div class="prose prose-xs max-w-none text-xs text-gray-700 whitespace-pre-line leading-relaxed font-sans bg-white p-4 rounded-xl border border-gray-200">
+        <!-- Formatted Rich Rendered HTML View -->
+        <div
+          v-if="activeViewTab === 'formatted'"
+          class="audit-narrative-content bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs"
+          v-html="parsedNarrativeHtml"
+        ></div>
+
+        <!-- Raw Text View -->
+        <div
+          v-else
+          class="bg-slate-900 text-slate-100 p-4 rounded-xl border border-slate-800 font-mono text-xs whitespace-pre-wrap leading-relaxed overflow-x-auto"
+        >
           {{ xaiData.ai_audit_narrative }}
         </div>
       </div>
@@ -316,3 +370,99 @@ async function copyNarrative() {
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.audit-narrative-content) {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #334155;
+}
+
+:deep(.audit-narrative-content h2) {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+:deep(.audit-narrative-content h3) {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #0f766e;
+  background-color: #f0fdfa;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid #0d9488;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+:deep(.audit-narrative-content p) {
+  font-size: 0.8125rem;
+  line-height: 1.625;
+  color: #475569;
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+:deep(.audit-narrative-content strong) {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+:deep(.audit-narrative-content ul) {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+:deep(.audit-narrative-content li) {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #475569;
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+:deep(.audit-narrative-content li::before) {
+  content: "•";
+  position: absolute;
+  left: 0.25rem;
+  top: -0.1rem;
+  color: #0d9488;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+:deep(.audit-narrative-content ol) {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+:deep(.audit-narrative-content ol li) {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #475569;
+  list-style-type: decimal;
+}
+
+:deep(.audit-narrative-content blockquote) {
+  border-left: 3px solid #cbd5e1;
+  padding-left: 0.75rem;
+  color: #64748b;
+  font-style: italic;
+  margin: 0.75rem 0;
+}
+</style>
